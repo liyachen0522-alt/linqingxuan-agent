@@ -1,0 +1,2350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>林清轩黑金霜 · 种草智能体</title>
+<style>
+:root {
+  --primary: #C8A86E;
+  --primary-dark: #A8884E;
+  --primary-light: #F5EDDC;
+  --bg: #FAF8F5;
+  --card: #FFFFFF;
+  --text: #2C2420;
+  --text-light: #8A7F76;
+  --border: #E8E2D8;
+  --success: #4CAF50;
+  --error: #E53935;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+/* Header */
+.header {
+  background: linear-gradient(135deg, #2C2420 0%, #4A3D32 100%);
+  color: #fff;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-logo {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700;
+}
+.header h1 { font-size: 18px; font-weight: 600; }
+.header h1 span { color: var(--primary); }
+.header-right { display: flex; gap: 16px; align-items: center; font-size: 13px; color: rgba(255,255,255,0.7); }
+.status-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; }
+.status-dot.ok { background: var(--success); }
+.status-dot.err { background: var(--error); }
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 32px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab {
+  padding: 14px 24px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-light);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--primary-dark); }
+.tab.active { color: var(--primary-dark); border-bottom-color: var(--primary); }
+/* 工具入口（独立 tab 样式，点击打开新窗口） */
+.tab-link {
+  margin-left: auto;
+  padding: 14px 24px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-dark);
+  border-bottom: 2px solid var(--primary);
+  transition: all 0.2s;
+  white-space: nowrap;
+  background: linear-gradient(180deg, rgba(200,168,110,0.08), transparent);
+}
+.tab-link:hover { background: linear-gradient(180deg, rgba(200,168,110,0.18), transparent); }
+/* 笔记互动数据格 */
+.note-metric {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.note-metric-val {
+  font-size: 20px; font-weight: 700;
+  color: var(--primary-dark);
+  line-height: 1.3;
+}
+.note-metric-label {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+.note-err {
+  color: var(--error);
+  padding: 12px 14px;
+  background: rgba(229,57,53,0.06);
+  border-radius: 8px;
+  font-size: 13px;
+}
+/* 批量查询结果表格 */
+#note-result table tr:hover { background: rgba(200,168,110,0.06); }
+#note-result .note-num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+/* Main */
+.main { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+.panel { display: none; }
+.panel.active { display: block; }
+/* Card */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: 16px; font-weight: 600;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title::before {
+  content: ''; width: 4px; height: 18px;
+  background: var(--primary); border-radius: 2px;
+}
+/* Form */
+.form-row { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.form-group { flex: 1; min-width: 200px; }
+.form-group label { display: block; font-size: 13px; color: var(--text-light); margin-bottom: 6px; }
+input, select, textarea {
+  width: 100%; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: 14px; font-family: inherit;
+  background: var(--bg); transition: border 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--primary);
+}
+textarea { resize: vertical; min-height: 80px; }
+/* Button */
+.btn {
+  padding: 10px 24px;
+  border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+  font-family: inherit;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-outline {
+  background: transparent; color: var(--primary-dark);
+  border: 1px solid var(--primary);
+}
+.btn-outline:hover { background: var(--primary-light); }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--card); border-radius: var(--radius);
+  padding: 20px; box-shadow: var(--shadow);
+  text-align: center;
+}
+.stat-value { font-size: 32px; font-weight: 700; color: var(--primary-dark); }
+.stat-label { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+/* Table */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 10px 12px; background: var(--bg); color: var(--text-light); font-weight: 500; border-bottom: 2px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+tr:hover { background: var(--bg); }
+.tag {
+  display: inline-block; padding: 2px 8px;
+  background: var(--primary-light); color: var(--primary-dark);
+  border-radius: 4px; font-size: 11px; margin: 2px;
+}
+.badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.badge-video { background: #FFE0E0; color: #C62828; }
+.badge-image { background: #E0F0FF; color: #1565C0; }
+/* Loading */
+.loading { text-align: center; padding: 40px; color: var(--text-light); }
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+/* Content Output */
+.content-output {
+  background: var(--bg); border-radius: 8px;
+  padding: 20px; margin-top: 16px;
+  border: 1px solid var(--border);
+}
+.content-output h3 { font-size: 15px; margin-bottom: 8px; color: var(--primary-dark); }
+.content-output .body-text { white-space: pre-wrap; font-size: 14px; line-height: 1.8; margin: 12px 0; }
+.content-output .script-text { white-space: pre-wrap; font-size: 13px; line-height: 1.8; font-family: "SF Mono", monospace; background: #fff; padding: 16px; border-radius: 8px; border: 1px solid var(--border); }
+.tags-display { margin: 8px 0; }
+.copy-btn { cursor: pointer; color: var(--primary-dark); font-size: 12px; }
+.copy-btn:hover { text-decoration: underline; }
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--text); color: #fff;
+  padding: 12px 24px; border-radius: 8px;
+  font-size: 14px; z-index: 999;
+  opacity: 0; transform: translateY(20px);
+  transition: all 0.3s;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--error); }
+/* Tips */
+.tips-list { list-style: none; }
+.tips-list li { padding: 6px 0; font-size: 13px; color: var(--text-light); }
+.tips-list li::before { content: '💡 '; }
+/* Quick buttons */
+.quick-keywords { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.quick-kw {
+  padding: 4px 12px; background: var(--primary-light);
+  color: var(--primary-dark); border-radius: 16px;
+  font-size: 12px; cursor: pointer; transition: all 0.2s;
+}
+.quick-kw:hover { background: var(--primary); color: #fff; }
+/* Empty state */
+.empty { text-align: center; padding: 40px; color: var(--text-light); }
+.empty svg { width: 48px; height: 48px; opacity: 0.3; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">林</div>
+    <h1>林清轩黑金霜 · <span>种草智能体</span></h1>
+  </div>
+  <div class="header-right">
+    <span><span class="status-dot ok" id="xhs-status"></span>小红书</span>
+    <span><span class="status-dot" id="dy-status"></span>抖音</span>
+    <span id="current-time"></span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="dashboard">📊 仪表盘</div>
+  <div class="tab" data-tab="xhs">📱 小红书采集</div>
+  <div class="tab" data-tab="pgy">📣 达人筛选</div>
+  <div class="tab" data-tab="douyin">🎬 抖音采集</div>
+  <div class="tab" data-tab="generate">✍️ 内容生成</div>
+  <div class="tab" data-tab="note">📎 笔记互动</div>
+  <div class="tab" data-tab="sales">📈 销售分析</div>
+  <div class="tab" data-tab="settings">⚙️ 设置</div>
+  <div class="tab-link" onclick="window.open('/tool/', '_blank')" title="打开桌面素材下载器（抖音达人视频 + kdocs 素材图，直接下载到桌面）">🖼 素材下载 →</div>
+</div>
+
+<div class="main">
+
+<!-- 仪表盘 -->
+<div class="panel active" id="panel-dashboard">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="stat-xhs-count">0</div>
+      <div class="stat-label">小红书采集笔记</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-dy-count">0</div>
+      <div class="stat-label">抖音采集视频</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-content-count">0</div>
+      <div class="stat-label">生成内容</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-keyword-count">0</div>
+      <div class="stat-label">监控关键词</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">竞品速览 · 林清轩黑金霜</div>
+    <div id="dashboard-table">
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18M7 14l4-4 4 4 5-5"/></svg>
+        <p>点击「小红书采集」搜索关键词查看竞品数据</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">品牌核心卖点</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;">
+      <div style="padding:12px;background:var(--bg);border-radius:8px;"><b>🧬 细胞能量因子</b><br><span style="font-size:13px;color:var(--text-light);">4重红山茶精萃+3重能量精萃，激活NAD+120%</span></div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;"><b>💪 6重黄金小分子肽</b><br><span style="font-size:13px;color:var(--text-light);">比普通胜肽更牛更温和，淡纹紧致</span></div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;"><b>🧪 III型胶原蛋白</b><br><span style="font-size:13px;color:var(--text-light);">100%人同源专利，专利号ZL201310033299.6</span></div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;"><b>✨ 传明酸+麦角硫因</b><br><span style="font-size:13px;color:var(--text-light);">一边抗老一边提亮抗氧化</span></div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;"><b>🌿 瞬吸透皮技术</b><br><span style="font-size:13px;color:var(--text-light);">活性成分直达肌底</span></div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;"><b>🍦 冰淇淋质地</b><br><span style="font-size:13px;color:var(--text-light);">绵密丝滑，推开就吸收，润而不腻</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 小红书采集 -->
+<div class="panel" id="panel-xhs">
+  <div class="card">
+    <div class="card-title">关键词搜索</div>
+    <div class="form-row">
+      <div class="form-group" style="flex:3;">
+        <label>搜索关键词</label>
+        <input type="text" id="xhs-keyword" placeholder="输入关键词，如：林清轩黑金霜" value="林清轩黑金霜">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>数量</label>
+        <select id="xhs-num">
+          <option value="10">10条</option>
+          <option value="20" selected>20条</option>
+          <option value="30">30条</option>
+        </select>
+      </div>
+    </div>
+    <div class="quick-keywords">
+      <span class="quick-kw" onclick="setXhsKeyword('林清轩黑金霜')">林清轩黑金霜</span>
+      <span class="quick-kw" onclick="setXhsKeyword('黑金霜抗老')">黑金霜抗老</span>
+      <span class="quick-kw" onclick="setXhsKeyword('细胞能量因子')">细胞能量因子</span>
+      <span class="quick-kw" onclick="setXhsKeyword('NAD+护肤')">NAD+护肤</span>
+      <span class="quick-kw" onclick="setXhsKeyword('抗老面霜推荐')">抗老面霜推荐</span>
+      <span class="quick-kw" onclick="setXhsKeyword('法令纹淡化')">法令纹淡化</span>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="btn btn-primary" id="xhs-search-btn" onclick="xhsSearch()">🔍 搜索</button>
+      <button class="btn btn-outline" onclick="exportXhsData()">📥 导出数据</button>
+      <button class="btn btn-outline" onclick="startQrLogin()" id="qr-login-btn" style="margin-left:auto;float:right;">📱 扫码刷新登录</button>
+    </div>
+  </div>
+  <div class="card" id="xhs-result-card" style="display:none;">
+    <div class="card-title">搜索结果 <span id="xhs-result-count" style="font-size:13px;color:var(--text-light);font-weight:400;"></span>
+      <button class="btn btn-outline" style="float:right;margin-top:-4px;padding:4px 12px;font-size:12px;" onclick="syncNotesToFeishu()">📘 同步到飞书</button>
+    </div>
+    <div id="xhs-result-table"></div>
+  </div>
+</div>
+
+<!-- 达人筛选（蒲公英） -->
+<div class="panel" id="panel-pgy">
+  <div class="card" style="border:1.5px solid var(--primary);">
+    <div class="card-title">🔗 蒲公英链接直达查询</div>
+    <div style="font-size:12px;color:var(--text-light);margin-bottom:10px;">粘贴达人蒲公英主页链接（支持 <code style="background:var(--bg);padding:1px 6px;border-radius:4px;">…/blogger-detail/xxx</code>、<code style="background:var(--bg);padding:1px 6px;border-radius:4px;">…/advertiser/kol/xxx</code>、<code style="background:var(--bg);padding:1px 6px;border-radius:4px;">…/kol/xxx</code>，或直接粘贴达人ID），一键查看该达人的全部数据并同步到飞书</div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1;">
+        <input type="text" id="pgy-link-input" placeholder="https://pgy.xiaohongshu.com/solar/pre-trade/blogger-detail/5f2ea7a3...">
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px;">
+        <button class="btn btn-primary" id="pgy-link-btn" onclick="pgyLinkQuery()">🔍 查询达人</button>
+      </div>
+    </div>
+    <div id="pgy-link-result" style="margin-top:8px;"></div>
+  </div>
+  <div class="card" style="border:1.5px solid var(--primary);">
+    <div class="card-title">🤖 AI 品牌匹配评估</div>
+    <div style="font-size:12px;color:var(--text-light);margin-bottom:10px;">用一句话描述品牌画像，AI 自动从蒲公英拉取达人并评估匹配度（标签/粉丝量级/报价预算/互动质量/外溢进店 + 大模型调性精评），直接给出推荐投放名单</div>
+    <div class="form-row">
+      <div class="form-group" style="flex:3;">
+        <label>品牌画像（自然语言）</label>
+        <input type="text" id="pgy-brand-profile" placeholder="高端护肤品牌，主打抗老精华，目标25-35岁女性，客单价300-800，单次投放预算10万，风格高级简约">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>拉取达人数量</label>
+        <select id="pgy-brand-num">
+          <option value="20">20</option>
+          <option value="50" selected>50</option>
+          <option value="100">100</option>
+          <option value="200">200</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>榜单长度</label>
+        <select id="pgy-brand-topn">
+          <option value="5">Top 5</option>
+          <option value="10" selected>Top 10</option>
+          <option value="15">Top 15</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <button class="btn btn-primary" id="pgy-brand-btn" onclick="pgyBrandMatch()">🤖 开始评估</button>
+    </div>
+    <div id="pgy-brand-result" style="margin-top:12px;"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">蒲公英达人筛选</div>
+    <div id="pgy-status" style="font-size:13px;margin-bottom:12px;"></div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1;">
+        <label>内容类目</label>
+        <select id="pgy-category">
+          <option value="">全部类目</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>最低粉丝数</label>
+        <select id="pgy-min-fans">
+          <option value="">不限</option>
+          <option value="10000">≥1万</option>
+          <option value="50000">≥5万</option>
+          <option value="100000">≥10万</option>
+          <option value="500000">≥50万</option>
+          <option value="1000000">≥100万</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>最低外溢进店</label>
+        <select id="pgy-min-overflow">
+          <option value="">不限</option>
+          <option value="1000">≥1000</option>
+          <option value="5000">≥5000</option>
+          <option value="10000">≥1万</option>
+          <option value="50000">≥5万</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1.5;">
+        <label>关键词（昵称/标签）</label>
+        <input type="text" id="pgy-keyword" placeholder="如：护肤、测评…（留空显示全部）">
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="btn btn-primary" id="pgy-search-btn" onclick="pgySearch()">🔍 搜索达人</button>
+      <button class="btn btn-outline" onclick="exportPgyData()">📥 导出数据</button>
+    </div>
+  </div>
+  <div class="card" id="pgy-result-card" style="display:none;">
+    <div class="card-title">达人列表 <span id="pgy-result-count" style="font-size:13px;color:var(--text-light);font-weight:400;"></span>
+      <button class="btn btn-outline" style="float:right;margin-top:-4px;padding:4px 12px;font-size:12px;" onclick="syncPgyToFeishu()">📘 同步到飞书</button>
+    </div>
+    <div id="pgy-result-table"></div>
+  </div>
+</div>
+
+<!-- 抖音采集 -->
+<div class="panel" id="panel-douyin">
+  <div class="card">
+    <div class="card-title">关键词搜索</div>
+    <div class="form-row">
+      <div class="form-group" style="flex:3;">
+        <label>搜索关键词</label>
+        <input type="text" id="dy-keyword" placeholder="输入关键词，如：林清轩黑金霜" value="林清轩黑金霜">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>数量</label>
+        <select id="dy-num">
+          <option value="10">10条</option>
+          <option value="20" selected>20条</option>
+          <option value="30">30条</option>
+        </select>
+      </div>
+    </div>
+    <div class="quick-keywords">
+      <span class="quick-kw" onclick="setDyKeyword('林清轩黑金霜')">林清轩黑金霜</span>
+      <span class="quick-kw" onclick="setDyKeyword('黑金霜测评')">黑金霜测评</span>
+      <span class="quick-kw" onclick="setDyKeyword('抗老面霜')">抗老面霜</span>
+      <span class="quick-kw" onclick="setDyKeyword('NAD+抗老')">NAD+抗老</span>
+      <span class="quick-kw" onclick="setDyKeyword('温峥嵘同款')">温峥嵘同款</span>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="btn btn-primary" id="dy-search-btn" onclick="dySearch()">🔍 搜索</button>
+      <button class="btn btn-outline" onclick="exportDyData()">📥 导出数据</button>
+    </div>
+    <div id="dy-cookie-warn" style="margin-top:12px;display:none;padding:12px;background:#FFF3E0;border-radius:8px;border:1px solid #FFB74D;font-size:13px;color:#E65100;">
+      ⚠️ 未检测到抖音Cookie，请先到「设置」页面填入抖音Cookie
+    </div>
+  </div>
+  <div class="card" id="dy-result-card" style="display:none;">
+    <div class="card-title">搜索结果 <span id="dy-result-count" style="font-size:13px;color:var(--text-light);font-weight:400;"></span></div>
+    <div id="dy-result-table"></div>
+  </div>
+</div>
+
+<!-- 内容生成 -->
+<div class="panel" id="panel-generate">
+  <div class="card">
+    <div class="card-title">生成小红书种草文案</div>
+    <div class="form-row">
+      <div class="form-group" style="flex:2;">
+        <label>主题</label>
+        <input type="text" id="gen-xhs-topic" value="林清轩黑金霜">
+      </div>
+      <div class="form-group">
+        <label>切入角度</label>
+        <select id="gen-xhs-angle">
+          <option value="anti_aging">抗老痛点</option>
+          <option value="ingredient">成分科普</option>
+          <option value="lifestyle">生活方式</option>
+          <option value="gift">送礼推荐</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>目标人群</label>
+        <select id="gen-xhs-audience">
+          <option value="25-35岁女性">25-35岁女性</option>
+          <option value="30+熟龄肌">30+熟龄肌</option>
+          <option value="干敏皮">干敏皮</option>
+          <option value="熬夜党">熬夜党</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1;">
+        <label>补充信息（可选）</label>
+        <input type="text" id="gen-xhs-extra" placeholder="如：配合品牌活动/促销信息等">
+      </div>
+    </div>
+    <button class="btn btn-primary" id="gen-xhs-btn" onclick="generateXhs()">✍️ 生成文案</button>
+    <button class="btn btn-outline" onclick="generateTitles()">📌 生成标题选项</button>
+  </div>
+  <div id="xhs-content-output"></div>
+
+  <div class="card" style="margin-top:20px;">
+    <div class="card-title">生成抖音短视频脚本</div>
+    <div class="form-row">
+      <div class="form-group" style="flex:2;">
+        <label>主题</label>
+        <input type="text" id="gen-dy-topic" value="林清轩黑金霜">
+      </div>
+      <div class="form-group">
+        <label>视频类型</label>
+        <select id="gen-dy-type">
+          <option value="experience">体验分享</option>
+          <option value="science">成分科普</option>
+          <option value="unboxing">开箱展示</option>
+          <option value="comparison">横向对比</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>视频时长</label>
+        <select id="gen-dy-duration">
+          <option value="15-30s">15-30秒</option>
+          <option value="30-60s" selected>30-60秒</option>
+          <option value="60-120s">60-120秒</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1;">
+        <label>补充信息（可选）</label>
+        <input type="text" id="gen-dy-extra" placeholder="如：配合品牌活动/促销信息等">
+      </div>
+    </div>
+    <button class="btn btn-primary" id="gen-dy-btn" onclick="generateDouyin()">🎬 生成脚本</button>
+  </div>
+  <div id="dy-content-output"></div>
+</div>
+
+<!-- 笔记互动查询 -->
+<div class="panel" id="panel-note">
+  <div class="card" style="border:1.5px solid var(--primary);">
+    <div class="card-title">🔗 笔记互动查询（小红书 / 抖音）</div>
+    <div style="font-size:12px;color:var(--text-light);margin-bottom:10px;">
+      粘贴小红书或抖音<b>笔记/视频链接</b>，一键查看<b>点赞 / 收藏 / 评论 / 转发</b>。
+      <b>支持批量：每行一条链接，一次最多 50 条</b>。
+      小红书请使用 App「分享 → 复制链接」的完整链接（带 xsec_token）。
+      <span id="note-cookie-status" style="margin-left:8px;white-space:nowrap;"></span>
+    </div>
+    <div class="form-group">
+      <textarea id="note-urls-input" style="min-height:110px;font-size:12px;" placeholder="每行一条链接，可粘贴多条：&#10;https://www.xiaohongshu.com/explore/xxxxx?xsec_token=...&#10;https://www.xiaohongshu.com/explore/xxxxx?xsec_token=...&#10;https://v.douyin.com/xxxx/"></textarea>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="note-query-btn" onclick="noteQuery()">🔍 查询互动数据</button>
+      <button class="btn" onclick="noteClear()">🗑️ 清空</button>
+      <button class="btn" onclick="notePasteDemo()">📋 填入示例</button>
+      <span id="note-batch-progress" style="font-size:12px;color:var(--text-light);"></span>
+    </div>
+    <div id="note-result" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- 销售分析 -->
+<div class="panel" id="panel-sales">
+  <div id="sales-loading" class="loading">
+    <div class="spinner"></div>
+    <p>正在加载销售数据（52,000+行）...</p>
+  </div>
+  <div id="sales-content" style="display:none;">
+
+    <!-- 总览数据 -->
+    <div class="stats-grid" id="sales-summary-stats"></div>
+    <div style="text-align:right;margin:8px 0;">
+      <button class="btn btn-outline" style="padding:6px 16px;font-size:13px;" onclick="syncSalesToFeishu()">📘 同步销售快照到飞书</button>
+    </div>
+
+    <!-- 黑金霜专题 -->
+    <div class="card">
+      <div class="card-title">黑金霜专题分析</div>
+      <div id="sales-heijin"></div>
+    </div>
+
+    <!-- 区域分析 -->
+    <div class="card">
+      <div class="card-title">区域销售排行</div>
+      <div id="sales-region"></div>
+    </div>
+
+    <!-- 品类分析 -->
+    <div class="card">
+      <div class="card-title">品类销售分布</div>
+      <div id="sales-category"></div>
+    </div>
+
+    <!-- 月度趋势 -->
+    <div class="card">
+      <div class="card-title">月度销售趋势</div>
+      <div style="margin-bottom:12px;">
+        <select id="sales-monthly-cat" onchange="loadSalesMonthly()" style="width:auto;display:inline-block;">
+          <option value="">全部品类</option>
+        </select>
+      </div>
+      <div id="sales-monthly"></div>
+    </div>
+
+    <!-- 会员等级 -->
+    <div class="card">
+      <div class="card-title">会员等级分析</div>
+      <div id="sales-level"></div>
+    </div>
+
+    <!-- 产品排行 -->
+    <div class="card">
+      <div class="card-title">产品销量 TOP 20</div>
+      <div style="margin-bottom:12px;">
+        <select id="sales-product-cat" onchange="loadTopProducts()" style="width:auto;display:inline-block;">
+          <option value="">全部品类</option>
+        </select>
+      </div>
+      <div id="sales-products"></div>
+    </div>
+
+    <!-- 区域×品类矩阵 -->
+    <div class="card">
+      <div class="card-title">区域 × 品类 交叉矩阵（金额）</div>
+      <div id="sales-matrix" style="overflow-x:auto;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 设置 -->
+<div class="panel" id="panel-settings">
+  <div class="card">
+    <div class="card-title">小红书 Cookie</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:12px;">
+      ✅ 小红书Cookie已配置（来自Spider_XHS的.env文件）
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">抖音 Cookie</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:12px;">
+      获取方式：浏览器登录 douyin.com → F12 → Network → 复制Cookie
+    </div>
+    <textarea id="dy-cookie-input" placeholder="粘贴抖音Cookie..." style="min-height:100px;"></textarea>
+    <div style="margin-top:12px;">
+      <button class="btn btn-primary" onclick="saveDyCookie()">💾 保存Cookie</button>
+      <button class="btn btn-outline" onclick="checkDyCookie()">🔍 检查状态</button>
+    </div>
+    <div id="dy-cookie-result" style="margin-top:12px;"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📘 飞书多维表格同步 <span id="feishu-config-status" style="font-size:12px;color:var(--text-light);font-weight:400;"></span></div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:12px;">
+      把智能体的达人 / 笔记 / 生成内容 / 销售快照一键同步到飞书多维表格，团队共享协作。
+      <a href="#" onclick="showFeishuGuide(event)">📖 查看接入教程</a>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1;">
+        <label>App ID（自建应用）</label>
+        <input type="text" id="feishu-app-id" placeholder="cli_xxxxxxxx">
+      </div>
+      <div class="form-group" style="flex:1.2;">
+        <label>App Secret</label>
+        <input type="password" id="feishu-app-secret" placeholder="已保存则留空不修改">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1.2;">
+        <label>多维表格 App Token</label>
+        <input type="text" id="feishu-app-token" placeholder="表格URL中的 bascnxxxxxxxx">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>数据表 Table ID</label>
+        <input type="text" id="feishu-table-id" placeholder="表格URL中的 tblxxxx">
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <button class="btn btn-primary" onclick="saveFeishuConfig()">💾 保存配置</button>
+      <button class="btn btn-outline" onclick="testFeishu()">🔌 测试连接</button>
+    </div>
+    <div id="feishu-result" style="margin-top:12px;font-size:13px;"></div>
+    <div id="feishu-guide" style="display:none;margin-top:16px;padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:13px;line-height:1.9;">
+      <b>📖 接入教程（5 分钟）</b><br>
+      1️⃣ 打开 <a href="https://open.feishu.cn/app" target="_blank">飞书开放平台</a> → 创建「企业自建应用」<br>
+      2️⃣ 应用详情 → 「凭证与基础信息」→ 复制 <b>App ID</b> 和 <b>App Secret</b><br>
+      3️⃣ 权限管理 → 开通 <b>多维表格（bitable）</b> 的读取/写入权限，发布版本<br>
+      4️⃣ 在飞书里新建「多维表格」，复制浏览器地址栏中的链接：<br>
+      &nbsp;&nbsp;链接格式：<span style="color:var(--primary);">https://xxx.feishu.cn/base/<b>AppToken</b>?table=<b>TableID</b>&view=...</span><br>
+      &nbsp;&nbsp;其中 <b>AppToken</b> 填到"多维表格 App Token"，<b>TableID</b> 填到"数据表 Table ID"<br>
+      5️⃣ 回到本页 → 保存配置 → 测试连接 ✅<br>
+      <span style="color:var(--text-light);">提示：同步时会自动创建缺少的字段（达人昵称、粉丝数、报价…），无需手动建列。</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">历史数据</div>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+let xhsData = [];
+let dyData = [];
+
+// Tab切换
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// 时间
+function updateTime() {
+  const now = new Date();
+  document.getElementById('current-time').textContent = now.toLocaleString('zh-CN');
+}
+updateTime();
+setInterval(updateTime, 1000);
+
+// Toast
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// 格式化数字
+function fmtNum(n) {
+  if (typeof n !== 'number') {
+    n = parseInt(n) || 0;
+  }
+  if (n >= 10000) return (n / 10000).toFixed(1) + '万';
+  return n.toString();
+}
+
+// ========== 笔记互动查询（小红书/抖音） ==========
+function noteEsc(s) {
+  return (s == null ? '' : String(s)).replace(/[&<>"']/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function noteShowError(msg) {
+  document.getElementById('note-result').innerHTML =
+    `<div class="note-err">⚠️ ${noteEsc(msg)}</div>`;
+}
+
+async function noteQuery() {
+  // 支持多行批量：每行一条链接
+  const text = document.getElementById('note-urls-input').value.trim();
+  const urls = text.split('\n').map(s => s.trim()).filter(s => s && s.length > 5);
+  if (!urls.length) {
+    noteShowError('请先粘贴小红书或抖音笔记链接（每行一条，可批量）');
+    return;
+  }
+  if (urls.length > 50) {
+    noteShowError('一次最多查询 50 条，请分批粘贴');
+    return;
+  }
+  if (urls.length === 1) {
+    // 单条：走原卡片式展示
+    const box = document.getElementById('note-result');
+    box.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在查询互动数据...</p></div>';
+    try {
+      const resp = await fetch(API + '/api/note/stats', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url: urls[0]})
+      });
+      const json = await resp.json();
+      if (!json.success) { noteShowError(json.msg || '查询失败'); return; }
+      renderNoteResult(json.data);
+    } catch (e) {
+      noteShowError('请求失败: ' + e.message + '（请确认服务已启动）');
+    }
+    return;
+  }
+  // 多条：批量查询，逐条实时更新进度
+  await noteBatchQuery(urls);
+}
+
+async function noteBatchQuery(urls) {
+  const box = document.getElementById('note-result');
+  const prog = document.getElementById('note-batch-progress');
+  const results = [];
+  let okCount = 0;
+  box.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在批量查询...</p></div>';
+  prog.textContent = `共 ${urls.length} 条，正在查询 0/${urls.length} ...`;
+
+  for (let i = 0; i < urls.length; i++) {
+    prog.textContent = `共 ${urls.length} 条，正在查询 ${i + 1}/${urls.length} ...（成功 ${okCount}）`;
+    const item = {index: i, url: urls[i], success: false, data: null, error: ''};
+    try {
+      const resp = await fetch(API + '/api/note/stats', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url: urls[i]})
+      });
+      const json = await resp.json();
+      if (json.success) {
+        item.success = true;
+        item.data = json.data;
+        okCount++;
+      } else {
+        item.error = json.msg || '查询失败';
+      }
+    } catch (e) {
+      item.error = '请求失败: ' + e.message;
+    }
+    results.push(item);
+    // 边查边渲染（前几条先显示）
+    if (i === 0 || i === urls.length - 1 || (i + 1) % 5 === 0) {
+      renderNoteTable(results, urls.length);
+    }
+    // 每条之间小间隔，降低限流风险
+    if (i < urls.length - 1) await new Promise(r => setTimeout(r, 300));
+  }
+  prog.textContent = '';
+  renderNoteTable(results, urls.length);
+}
+
+function renderNoteTable(results, total) {
+  const okCount = results.filter(r => r.success).length;
+  const box = document.getElementById('note-result');
+  const head = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:13px;font-weight:600;">
+        查询完成：<span style="color:#c9a86c;">${okCount}/${total}</span> 成功
+        ${okCount < total ? ` <span style="color:var(--error);">${total - okCount} 条失败</span>` : ''}
+      </div>
+      <button class="btn" onclick="exportNoteCsv()" ${okCount ? '' : 'disabled'}>📥 导出 CSV</button>
+    </div>`;
+  const rows = results.map(r => {
+    const d = r.data;
+    if (!r.success || !d) {
+      return `<tr style="opacity:0.85;">
+        <td>${r.index + 1}</td>
+        <td>—</td>
+        <td style="color:var(--error);font-size:12px;" colspan="7" title="${noteEsc(r.error)}">❌ ${noteEsc(r.error || '查询失败')}</td>
+      </tr>`;
+    }
+    const brief = (s, n) => s ? (s.length > n ? s.slice(0, n) + '…' : s) : '（无标题）';
+    return `<tr>
+      <td>${r.index + 1}</td>
+      <td>${d.platform_name}</td>
+      <td title="${noteEsc(d.title || '')}">${noteEsc(brief(d.title, 24))}</td>
+      <td title="${noteEsc(d.author || '')}">${noteEsc(d.author || '—')}</td>
+      <td class="note-num">${fmtNum(d.likes)}</td>
+      <td class="note-num">${fmtNum(d.collects)}</td>
+      <td class="note-num">${fmtNum(d.comments)}</td>
+      <td class="note-num">${fmtNum(d.shares)}</td>
+      <td style="font-size:11px;"><a href="${noteEsc(d.note_url || d.video_url || r.url)}" target="_blank" rel="noopener" style="color:var(--primary-dark);text-decoration:none;">原文 ↗</a></td>
+    </tr>`;
+  }).join('');
+  box.innerHTML = head + `
+    <div style="overflow-x:auto;max-height:520px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;">
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:760px;">
+        <thead style="position:sticky;top:0;background:var(--bg-alt,#f8f4ec);z-index:1;">
+          <tr style="text-align:left;">
+            <th style="padding:8px 10px;border-bottom:1px solid var(--border);">#</th>
+            <th style="padding:8px 10px;border-bottom:1px solid var(--border);">平台</th>
+            <th style="padding:8px 10px;border-bottom:1px solid var(--border);">标题</th>
+            <th style="padding:8px 10px;border-bottom:1px solid var(--border);">作者</th>
+            <th style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;">点赞</th>
+            <th style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;">收藏</th>
+            <th style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;">评论</th>
+            <th style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;">转发</th>
+            <th style="padding:8px 10px;border-bottom:1px solid var(--border);">链接</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text-light);">
+      💡 提示：点赞/收藏/评论/转发为当前实时数据；若某条显示 0，可能是该笔记未公开对应数据。失败条目可点击标题查看原因，通常是链接凭证过期（请从 App 重新复制）。
+    </div>`;
+  // 保存 CSV 数据到全局
+  window.__noteCsvData = results.filter(r => r.success && r.data).map(r => r.data);
+}
+
+function exportNoteCsv() {
+  const list = window.__noteCsvData || [];
+  if (!list.length) return;
+  const esc = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+  const head = ['平台', '标题', '作者', '点赞', '收藏', '评论', '转发', '笔记ID', '链接'].map(esc).join(',');
+  const rows = list.map(d => [d.platform_name, d.title, d.author, d.likes, d.collects, d.comments, d.shares, d.note_id || d.video_id || '', d.note_url || d.video_url || ''].map(esc).join(','));
+  const blob = new Blob(['\ufeff' + head + '\n' + rows.join('\n')], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '笔记互动数据_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function noteClear() {
+  document.getElementById('note-urls-input').value = '';
+  document.getElementById('note-result').innerHTML = '';
+  document.getElementById('note-batch-progress').textContent = '';
+  window.__noteCsvData = [];
+}
+
+function notePasteDemo() {
+  document.getElementById('note-urls-input').value =
+    'https://www.xiaohongshu.com/explore/6a7b1c97000000002701f323?xsec_token=ABvp5yVbMBOsrw2VgQmIKQeo5kOuwT0W9AGXQD5Tm2U2s=' +
+    '\nhttps://www.xiaohongshu.com/explore/6a7b1c97000000002701f323?xsec_token=FAKE_TOKEN_123456';
+  noteShowError('');
+  document.getElementById('note-result').innerHTML = '';
+  document.getElementById('note-batch-progress').textContent = '已填入 2 条示例（第 1 条正常、第 2 条演示 token 过期提示），点击「查询互动数据」体验批量查询';
+}
+
+function renderNoteResult(d) {
+  const tags = (d.tags && d.tags.length)
+    ? '<span style="color:var(--text-light);"> · 标签：</span>' + d.tags.map(noteEsc).join('、')
+    : '';
+  document.getElementById('note-result').innerHTML = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      ${d.cover ? `<img src="${noteEsc(d.cover)}" onerror="this.style.display='none'" style="width:110px;height:140px;object-fit:cover;border-radius:10px;border:1px solid var(--border);flex-shrink:0;" alt="封面">` : ''}
+      <div style="flex:1;min-width:280px;">
+        <div style="font-size:15px;font-weight:600;margin-bottom:4px;">${noteEsc(d.title) || '（无标题）'}</div>
+        <div style="font-size:13px;color:var(--text-light);margin-bottom:12px;">
+          ${noteEsc(d.platform_name)} · 作者：${noteEsc(d.author) || '未知'}${tags}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;">
+          <div class="note-metric"><div class="note-metric-val">❤️ ${fmtNum(d.likes)}</div><div class="note-metric-label">点赞</div></div>
+          <div class="note-metric"><div class="note-metric-val">⭐ ${fmtNum(d.collects)}</div><div class="note-metric-label">收藏</div></div>
+          <div class="note-metric"><div class="note-metric-val">💬 ${fmtNum(d.comments)}</div><div class="note-metric-label">评论</div></div>
+          <div class="note-metric"><div class="note-metric-val">📤 ${fmtNum(d.shares)}</div><div class="note-metric-label">转发</div></div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;">
+          <a href="${noteEsc(d.note_url || d.video_url)}" target="_blank" rel="noopener" style="color:var(--primary-dark);text-decoration:none;">查看原文 ↗</a>
+          ${d.note_id ? `<span style="color:var(--text-light);margin-left:10px;">ID: ${noteEsc(d.note_id)}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+async function checkNoteCookie() {
+  const span = document.getElementById('note-cookie-status');
+  if (!span) return;
+  try {
+    const resp = await fetch(API + '/api/note/cookie_status');
+    const json = await resp.json();
+    const d = (json && json.data) || {};
+    const mk = (ok, name) => ok
+      ? `<span class="status-dot ok"></span>${name}已配置`
+      : `<span class="status-dot err"></span>${name}未配置`;
+    span.innerHTML = mk(!!d.xhs, '小红书') + ' &nbsp; ' + mk(!!d.douyin, '抖音')
+      + (d.edge_service ? '' : ' &nbsp; <span style="color:var(--error);">⚠️ 抖音服务离线</span>');
+  } catch (e) {
+    span.innerHTML = '<span style="color:var(--text-light);">Cookie 状态获取失败</span>';
+  }
+}
+checkNoteCookie();
+
+// 小红书搜索
+function setXhsKeyword(kw) { document.getElementById('xhs-keyword').value = kw; }
+
+async function xhsSearch() {
+  const keyword = document.getElementById('xhs-keyword').value.trim();
+  const num = document.getElementById('xhs-num').value;
+  if (!keyword) return toast('请输入关键词', 'error');
+
+  const btn = document.getElementById('xhs-search-btn');
+  btn.disabled = true; btn.textContent = '⏳ 搜索中...';
+
+  try {
+    const resp = await fetch(API + '/api/xhs/search', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({keyword, num: parseInt(num)})
+    });
+    const data = await resp.json();
+    if (data.success) {
+      xhsData = data.data;
+      renderXhsResults(xhsData);
+      updateStats();
+      toast(`找到 ${xhsData.length} 条笔记`, 'success');
+    } else {
+      toast(data.msg || '搜索失败', 'error');
+    }
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '🔍 搜索';
+}
+
+function renderXhsResults(data) {
+  const card = document.getElementById('xhs-result-card');
+  const countEl = document.getElementById('xhs-result-count');
+  const tableEl = document.getElementById('xhs-result-table');
+
+  if (!data || data.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+
+  card.style.display = 'block';
+  countEl.textContent = `（共 ${data.length} 条）`;
+
+  let html = '<table><thead><tr><th>#</th><th>类型</th><th>作者</th><th>标题</th><th>👍</th><th>⭐</th><th>💬</th><th>链接</th></tr></thead><tbody>';
+  data.forEach((n, i) => {
+    const typeBadge = n.type === '视频'
+      ? '<span class="badge badge-video">视频</span>'
+      : '<span class="badge badge-image">图文</span>';
+    html += `<tr>
+      <td>${i+1}</td>
+      <td>${typeBadge}</td>
+      <td>${n.author}</td>
+      <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${n.title}">${n.title}</td>
+      <td>${fmtNum(n.likes)}</td>
+      <td>${fmtNum(n.collected)}</td>
+      <td>${fmtNum(n.comments)}</td>
+      <td><a href="${n.url}" target="_blank" style="color:var(--primary-dark);">查看</a></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  tableEl.innerHTML = html;
+
+  // 同时更新仪表盘
+  renderDashboard(data);
+}
+
+// 抖音搜索
+function setDyKeyword(kw) { document.getElementById('dy-keyword').value = kw; }
+
+async function dySearch() {
+  const keyword = document.getElementById('dy-keyword').value.trim();
+  const num = document.getElementById('dy-num').value;
+  if (!keyword) return toast('请输入关键词', 'error');
+
+  const btn = document.getElementById('dy-search-btn');
+  btn.disabled = true; btn.textContent = '⏳ 搜索中...';
+
+  try {
+    const resp = await fetch(API + '/api/douyin/search', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({keyword, num: parseInt(num)})
+    });
+    const data = await resp.json();
+    if (data.success) {
+      dyData = data.data;
+      renderDyResults(dyData);
+      updateStats();
+      toast(`找到 ${dyData.length} 条视频`, 'success');
+    } else {
+      toast(data.msg || '搜索失败', 'error');
+    }
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '🔍 搜索';
+}
+
+function renderDyResults(data) {
+  const card = document.getElementById('dy-result-card');
+  const countEl = document.getElementById('dy-result-count');
+  const tableEl = document.getElementById('dy-result-table');
+
+  if (!data || data.length === 0) {
+    card.style.display = 'none';
+    toast('未找到视频，可能需要设置抖音Cookie', 'error');
+    return;
+  }
+
+  card.style.display = 'block';
+  countEl.textContent = `（共 ${data.length} 条）`;
+
+  let html = '<table><thead><tr><th>#</th><th>作者</th><th>描述</th><th>❤️</th><th>💬</th><th>🔗</th><th>时长</th><th>链接</th></tr></thead><tbody>';
+  data.forEach((v, i) => {
+    const dur = v.duration ? Math.round(v.duration/1000) + 's' : '-';
+    html += `<tr>
+      <td>${i+1}</td>
+      <td>${v.author}</td>
+      <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${v.desc}">${v.desc || '无描述'}</td>
+      <td>${fmtNum(v.likes)}</td>
+      <td>${fmtNum(v.comments)}</td>
+      <td>${fmtNum(v.shares)}</td>
+      <td>${dur}</td>
+      <td><a href="${v.url}" target="_blank" style="color:var(--primary-dark);">查看</a></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  tableEl.innerHTML = html;
+}
+
+// 内容生成 - 小红书
+async function generateXhs() {
+  const topic = document.getElementById('gen-xhs-topic').value;
+  const angle = document.getElementById('gen-xhs-angle').value;
+  const audience = document.getElementById('gen-xhs-audience').value;
+  const extra = document.getElementById('gen-xhs-extra').value;
+
+  const btn = document.getElementById('gen-xhs-btn');
+  btn.disabled = true; btn.textContent = '⏳ 生成中...';
+
+  try {
+    const resp = await fetch(API + '/api/generate/xhs', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({topic, angle, target_audience: audience, extra_info: extra})
+    });
+    const data = await resp.json();
+    if (data.success) {
+      renderXhsContent(data.data);
+      updateStats();
+      toast('文案生成成功！', 'success');
+    } else {
+      toast(data.msg || '生成失败', 'error');
+    }
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '✍️ 生成文案';
+}
+
+function renderXhsContent(d) {
+  const el = document.getElementById('xhs-content-output');
+  window._lastXhsContent = d;
+  let html = `<div class="content-output">
+    <div style="margin-bottom:12px;"><button class="btn btn-outline" style="padding:5px 14px;font-size:13px;" onclick="syncContentToFeishu('xhs')">📘 同步到飞书内容库</button></div>
+    <h3>📝 标题</h3>
+    <div style="font-size:16px;font-weight:600;">${d.title}</div>
+    <span class="copy-btn" onclick="copyText('${d.title.replace(/'/g, "\\'")}')">复制标题</span>
+    <h3 style="margin-top:16px;">📄 正文</h3>
+    <div class="body-text">${d.body}</div>
+    <span class="copy-btn" onclick="copyText(document.querySelector('.body-text').textContent)">复制正文</span>
+    <h3 style="margin-top:16px;">🏷️ 标签</h3>
+    <div class="tags-display">${d.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+    <div style="font-size:12px;color:var(--text-light);margin-top:4px;">${d.tags_str}</div>
+    <span class="copy-btn" onclick="copyText('${d.tags_str.replace(/'/g, "\\'")}')">复制标签</span>
+    <h3 style="margin-top:16px;">💡 发布建议</h3>
+    <ul class="tips-list">${d.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+    <div style="margin-top:12px;font-size:12px;color:var(--text-light);">生成时间：${d.generated_at} | 角度：${d.angle} | 目标人群：${d.target_audience}</div>
+  </div>`;
+  el.innerHTML = html;
+}
+
+// 内容生成 - 标题选项
+async function generateTitles() {
+  const topic = document.getElementById('gen-xhs-topic').value;
+  const angle = document.getElementById('gen-xhs-angle').value;
+  try {
+    const resp = await fetch(API + '/api/generate/titles', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({topic, angle, count: 10})
+    });
+    const data = await resp.json();
+    if (data.success) {
+      let html = '<div class="content-output"><h3>📌 标题选项</h3>';
+      data.data.forEach((t, i) => {
+        html += `<div style="padding:8px 12px;margin:4px 0;background:#fff;border-radius:6px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <span>${i+1}. ${t}</span>
+          <span class="copy-btn" onclick="copyText('${t.replace(/'/g, "\\'")}')">复制</span>
+        </div>`;
+      });
+      html += '</div>';
+      document.getElementById('xhs-content-output').innerHTML = html;
+      toast('生成10个标题选项', 'success');
+    }
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+}
+
+// 内容生成 - 抖音
+async function generateDouyin() {
+  const topic = document.getElementById('gen-dy-topic').value;
+  const video_type = document.getElementById('gen-dy-type').value;
+  const duration = document.getElementById('gen-dy-duration').value;
+  const extra = document.getElementById('gen-dy-extra').value;
+
+  const btn = document.getElementById('gen-dy-btn');
+  btn.disabled = true; btn.textContent = '⏳ 生成中...';
+
+  try {
+    const resp = await fetch(API + '/api/generate/douyin', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({topic, video_type, duration, extra_info: extra})
+    });
+    const data = await resp.json();
+    if (data.success) {
+      renderDyContent(data.data);
+      updateStats();
+      toast('脚本生成成功！', 'success');
+    } else {
+      toast(data.msg || '生成失败', 'error');
+    }
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '🎬 生成脚本';
+}
+
+function renderDyContent(d) {
+  const el = document.getElementById('dy-content-output');
+  window._lastDyContent = d;
+  let html = `<div class="content-output">
+    <div style="margin-bottom:12px;"><button class="btn btn-outline" style="padding:5px 14px;font-size:13px;" onclick="syncContentToFeishu('dy')">📘 同步到飞书内容库</button></div>
+    <h3>🎬 钩子（Hook）</h3>
+    <div style="font-size:15px;font-weight:600;">${d.hook}</div>
+    <h3 style="margin-top:16px;">📋 脚本</h3>
+    <div class="script-text">${d.script}</div>
+    <span class="copy-btn" onclick="copyText(document.querySelector('.script-text').textContent)">复制脚本</span>
+    <h3 style="margin-top:16px;">🎵 BGM推荐</h3>
+    <div style="font-size:14px;">${d.music_suggestion}</div>
+    <h3 style="margin-top:16px;">🏷️ 标签</h3>
+    <div class="tags-display">${d.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+    <h3 style="margin-top:16px;">💡 拍摄建议</h3>
+    <ul class="tips-list">${d.shooting_tips.map(t => `<li>${t}</li>`).join('')}</ul>
+    <div style="margin-top:12px;font-size:12px;color:var(--text-light);">类型：${d.video_type} | 时长：${d.duration} | 结构：${d.structure}</div>
+  </div>`;
+  el.innerHTML = html;
+}
+
+// 复制
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast('已复制到剪贴板', 'success'));
+}
+
+// 导出
+function exportXhsData() {
+  if (xhsData.length === 0) return toast('暂无数据可导出', 'error');
+  const json = JSON.stringify(xhsData, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `xhs_data_${Date.now()}.json`;
+  a.click();
+  toast('数据已导出', 'success');
+}
+
+function exportDyData() {
+  if (dyData.length === 0) return toast('暂无数据可导出', 'error');
+  const json = JSON.stringify(dyData, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `douyin_data_${Date.now()}.json`;
+  a.click();
+  toast('数据已导出', 'success');
+}
+
+// 抖音Cookie
+async function saveDyCookie() {
+  const cookie = document.getElementById('dy-cookie-input').value.trim();
+  if (!cookie) return toast('请输入Cookie', 'error');
+  try {
+    const resp = await fetch(API + '/api/douyin/set_cookie', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({cookie})
+    });
+    const data = await resp.json();
+    if (data.success) {
+      toast('Cookie已保存', 'success');
+      checkDyCookie();
+    }
+  } catch(e) {
+    toast('保存失败: ' + e.message, 'error');
+  }
+}
+
+async function checkDyCookie() {
+  try {
+    const resp = await fetch(API + '/api/douyin/cookie_status');
+    const data = await resp.json();
+    const dot = document.getElementById('dy-status');
+    const warn = document.getElementById('dy-cookie-warn');
+    const result = document.getElementById('dy-cookie-result');
+    if (data.has_cookie) {
+      dot.className = 'status-dot ok';
+      warn.style.display = 'none';
+      result.innerHTML = '<span style="color:var(--success);">✅ 抖音Cookie已配置</span>';
+    } else {
+      dot.className = 'status-dot err';
+      warn.style.display = 'block';
+      result.innerHTML = '<span style="color:var(--error);">❌ 未配置抖音Cookie</span>';
+    }
+  } catch(e) {}
+}
+
+// 仪表盘
+function renderDashboard(data) {
+  const el = document.getElementById('dashboard-table');
+  if (!data || data.length === 0) return;
+  let html = '<table><thead><tr><th>#</th><th>类型</th><th>作者</th><th>标题</th><th>👍</th><th>⭐</th><th>💬</th><th>链接</th></tr></thead><tbody>';
+  data.slice(0, 10).forEach((n, i) => {
+    const typeBadge = n.type === '视频'
+      ? '<span class="badge badge-video">视频</span>'
+      : '<span class="badge badge-image">图文</span>';
+    html += `<tr>
+      <td>${i+1}</td>
+      <td>${typeBadge}</td>
+      <td>${n.author}</td>
+      <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${n.title}">${n.title}</td>
+      <td>${fmtNum(n.likes)}</td>
+      <td>${fmtNum(n.collected)}</td>
+      <td>${fmtNum(n.comments)}</td>
+      <td><a href="${n.url}" target="_blank" style="color:var(--primary-dark);">查看</a></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function updateStats() {
+  document.getElementById('stat-xhs-count').textContent = xhsData.length;
+  document.getElementById('stat-dy-count').textContent = dyData.length;
+}
+
+// ========== 销售分析 ==========
+let salesLoaded = false;
+
+async function loadSalesData() {
+  if (salesLoaded) return;
+  try {
+    // 并行加载所有数据
+    const [summary, region, category, level, heijin, matrix] = await Promise.all([
+      fetch(API + '/api/sales/summary').then(r => r.json()),
+      fetch(API + '/api/sales/region').then(r => r.json()),
+      fetch(API + '/api/sales/category').then(r => r.json()),
+      fetch(API + '/api/sales/level').then(r => r.json()),
+      fetch(API + '/api/sales/heijin').then(r => r.json()),
+      fetch(API + '/api/sales/matrix').then(r => r.json()),
+    ]);
+
+    if (summary.success) renderSalesSummary(summary.data);
+    if (region.success) renderSalesRegion(region.data);
+    if (category.success) {
+      renderSalesCategory(category.data);
+      // 填充品类下拉
+      const cats = category.data.map(c => c.category);
+      fillCategorySelects(cats);
+    }
+    if (level.success) renderSalesLevel(level.data);
+    if (heijin.success) renderHeijin(heijin.data);
+    if (matrix.success) renderMatrix(matrix.data);
+
+    // 加载月度和产品排行
+    loadSalesMonthly();
+    loadTopProducts();
+
+    document.getElementById('sales-loading').style.display = 'none';
+    document.getElementById('sales-content').style.display = 'block';
+    salesLoaded = true;
+  } catch(e) {
+    document.getElementById('sales-loading').innerHTML = '<p style="color:var(--error);">加载失败: ' + e.message + '</p>';
+  }
+}
+
+function renderSalesSummary(d) {
+  const el = document.getElementById('sales-summary-stats');
+  el.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-value">¥${(d.total_amount/10000).toFixed(0)}万</div>
+      <div class="stat-label">总销售额 (${d.month_range})</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${(d.total_qty/10000).toFixed(1)}万</div>
+      <div class="stat-label">总销量（件）</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">¥${d.avg_unit_price.toFixed(1)}</div>
+      <div class="stat-label">平均客单价</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">¥${(d.hj_amount/10000).toFixed(0)}万</div>
+      <div class="stat-label">黑金霜销售 (${d.hj_pct}%)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${d.hj_qty.toLocaleString()}</div>
+      <div class="stat-label">黑金霜销量（件）</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${d.regions.length}</div>
+      <div class="stat-label">覆盖区域</div>
+    </div>
+  `;
+}
+
+function renderHeijin(d) {
+  const el = document.getElementById('sales-heijin');
+  let html = '';
+
+  // 黑金霜规格排行
+  html += '<div style="margin-bottom:20px;"><b style="color:var(--primary-dark);">黑金霜规格销售排行</b></div>';
+  html += '<table><thead><tr><th>#</th><th>产品名称</th><th>销量</th><th>金额</th><th>订单数</th><th>均价</th></tr></thead><tbody>';
+  d.top_specs.forEach((s, i) => {
+    html += `<tr>
+      <td>${i+1}</td>
+      <td style="max-width:350px;">${s.name}</td>
+      <td>${s.qty.toLocaleString()}</td>
+      <td style="color:var(--primary-dark);font-weight:600;">¥${s.amount.toLocaleString()}</td>
+      <td>${s.orders.toLocaleString()}</td>
+      <td>¥${s.avg_price.toFixed(1)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+
+  // 区域分布
+  html += '<div style="margin:20px 0 12px;"><b style="color:var(--primary-dark);">黑金霜区域分布</b></div>';
+  const maxAmt = Math.max(...d.region_dist.map(r => r.amount), 1);
+  html += '<div style="space-y:6px;">';
+  d.region_dist.forEach(r => {
+    const pct = (r.amount / maxAmt * 100).toFixed(1);
+    html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span style="width:80px;text-align:right;font-size:13px;">${r.region}</span>
+      <div style="flex:1;height:24px;background:var(--bg);border-radius:4px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-dark));border-radius:4px;display:flex;align-items:center;padding-left:8px;color:#fff;font-size:11px;font-weight:500;">¥${(r.amount/10000).toFixed(1)}万</div>
+      </div>
+      <span style="width:60px;font-size:12px;color:var(--text-light);">${r.qty}件</span>
+    </div>`;
+  });
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+function renderSalesRegion(data) {
+  const el = document.getElementById('sales-region');
+  const maxAmt = Math.max(...data.map(r => r.amount), 1);
+  let html = '<table><thead><tr><th>#</th><th>区域</th><th>销量</th><th>金额</th><th>占比</th><th>订单数</th><th>均价</th><th style="min-width:200px;">分布</th></tr></thead><tbody>';
+  const total = data.reduce((s, r) => s + r.amount, 0);
+  data.forEach((r, i) => {
+    const pct = (r.amount / total * 100).toFixed(1);
+    const barPct = (r.amount / maxAmt * 100).toFixed(1);
+    html += `<tr>
+      <td>${i+1}</td>
+      <td><b>${r.region}</b></td>
+      <td>${r.qty.toLocaleString()}</td>
+      <td style="color:var(--primary-dark);font-weight:600;">¥${(r.amount/10000).toFixed(1)}万</td>
+      <td>${pct}%</td>
+      <td>${r.orders.toLocaleString()}</td>
+      <td>¥${r.avg_price.toFixed(1)}</td>
+      <td><div style="width:100%;height:20px;background:var(--bg);border-radius:4px;overflow:hidden;"><div style="width:${barPct}%;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-dark));border-radius:4px;"></div></div></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function renderSalesCategory(data) {
+  const el = document.getElementById('sales-category');
+  const total = data.reduce((s, r) => s + r.amount, 0);
+  const colors = ['#C8A86E','#A8884E','#D4B886','#8B7355','#B89968','#9C8045','#DCC9A0','#7A6840','#C0A070','#E0D0B0'];
+  let html = '<div style="display:flex;gap:24px;flex-wrap:wrap;">';
+
+  // 饼图替代 - 横向条形图
+  html += '<div style="flex:1;min-width:400px;"><table><thead><tr><th>#</th><th>品类</th><th>销量</th><th>金额</th><th>占比</th><th>分布</th></tr></thead><tbody>';
+  data.forEach((c, i) => {
+    const pct = (c.amount / total * 100).toFixed(1);
+    const color = colors[i % colors.length];
+    html += `<tr>
+      <td>${i+1}</td>
+      <td><b>${c.category}</b></td>
+      <td>${c.qty.toLocaleString()}</td>
+      <td style="font-weight:600;color:${color};">¥${(c.amount/10000).toFixed(1)}万</td>
+      <td>${pct}%</td>
+      <td><div style="width:120px;height:18px;background:var(--bg);border-radius:3px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px;"></div></div></td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  el.innerHTML = html;
+}
+
+function renderSalesLevel(data) {
+  const el = document.getElementById('sales-level');
+  let html = '<table><thead><tr><th>#</th><th>会员等级</th><th>销量</th><th>金额</th><th>订单数</th><th>客单价</th></tr></thead><tbody>';
+  data.forEach((l, i) => {
+    html += `<tr>
+      <td>${i+1}</td>
+      <td><b>${l.level}</b></td>
+      <td>${l.qty.toLocaleString()}</td>
+      <td style="color:var(--primary-dark);font-weight:600;">¥${(l.amount/10000).toFixed(1)}万</td>
+      <td>${l.orders.toLocaleString()}</td>
+      <td>¥${l.avg_order.toFixed(1)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+async function loadSalesMonthly() {
+  const cat = document.getElementById('sales-monthly-cat').value;
+  const url = API + '/api/sales/monthly' + (cat ? '?category=' + encodeURIComponent(cat) : '');
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data.success) renderSalesMonthly(data.data);
+  } catch(e) {}
+}
+
+function renderSalesMonthly(data) {
+  const el = document.getElementById('sales-monthly');
+  if (!data || data.length === 0) { el.innerHTML = '<p style="color:var(--text-light);">暂无数据</p>'; return; }
+
+  const maxAmt = Math.max(...data.map(d => d.amount), 1);
+  const maxQty = Math.max(...data.map(d => d.qty), 1);
+  const w = 800, h = 240, pad = 50;
+  const chartW = w - pad * 2, chartH = h - pad * 2;
+  const stepX = chartW / Math.max(data.length - 1, 1);
+
+  // SVG折线图
+  let pathAmt = '', pathQty = '';
+  let dotsAmt = '', dotsQty = '';
+  let xLabels = '';
+  data.forEach((d, i) => {
+    const x = pad + i * stepX;
+    const yAmt = pad + chartH - (d.amount / maxAmt) * chartH;
+    const yQty = pad + chartH - (d.qty / maxQty) * chartH;
+    pathAmt += (i === 0 ? 'M' : 'L') + x + ',' + yAmt + ' ';
+    pathQty += (i === 0 ? 'M' : 'L') + x + ',' + yQty + ' ';
+    dotsAmt += `<circle cx="${x}" cy="${yAmt}" r="3" fill="var(--primary-dark)"/><title>${d.month} | ¥${(d.amount/10000).toFixed(1)}万</title>`;
+    dotsQty += `<circle cx="${x}" cy="${yQty}" r="3" fill="#E53935"/><title>${d.month} | ${d.qty}件</title>`;
+    xLabels += `<text x="${x}" y="${h - 10}" font-size="10" text-anchor="middle" fill="var(--text-light)">${d.month.slice(2)}</text>`;
+  });
+
+  el.innerHTML = `
+    <div style="overflow-x:auto;">
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;min-width:700px;">
+      <!-- 网格线 -->
+      ${[0,0.25,0.5,0.75,1].map(p => {
+        const y = pad + chartH * (1-p);
+        return `<line x1="${pad}" y1="${y}" x2="${w-pad}" y2="${y}" stroke="var(--border)" stroke-width="1"/>` +
+               `<text x="${pad-8}" y="${y+4}" font-size="10" text-anchor="end" fill="var(--text-light)">${(maxAmt*p/10000).toFixed(0)}万</text>`;
+      }).join('')}
+      <!-- 金额线 -->
+      <path d="${pathAmt}" fill="none" stroke="var(--primary-dark)" stroke-width="2"/>
+      ${dotsAmt}
+      <!-- 数量线 -->
+      <path d="${pathQty}" fill="none" stroke="#E53935" stroke-width="2" stroke-dasharray="4,2"/>
+      ${dotsQty}
+      ${xLabels}
+      <!-- 图例 -->
+      <rect x="${w-160}" y="10" width="12" height="12" fill="var(--primary-dark)"/><text x="${w-142}" y="20" font-size="11" fill="var(--text)">金额</text>
+      <rect x="${w-100}" y="10" width="12" height="12" fill="#E53935"/><text x="${w-82}" y="20" font-size="11" fill="var(--text)">数量</text>
+    </svg>
+    </div>
+  `;
+}
+
+async function loadTopProducts() {
+  const cat = document.getElementById('sales-product-cat').value;
+  const url = API + '/api/sales/top_products?limit=20' + (cat ? '&category=' + encodeURIComponent(cat) : '');
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data.success) renderTopProducts(data.data);
+  } catch(e) {}
+}
+
+function renderTopProducts(data) {
+  const el = document.getElementById('sales-products');
+  if (!data || data.length === 0) { el.innerHTML = '<p style="color:var(--text-light);">暂无数据</p>'; return; }
+  const maxAmt = Math.max(...data.map(d => d.amount), 1);
+  let html = '<table><thead><tr><th>#</th><th>产品名称</th><th>品类</th><th>销量</th><th>金额</th><th>订单数</th><th style="min-width:120px;">占比</th></tr></thead><tbody>';
+  data.forEach((p, i) => {
+    const barPct = (p.amount / maxAmt * 100).toFixed(1);
+    html += `<tr>
+      <td>${i+1}</td>
+      <td style="max-width:320px;">${p.name}</td>
+      <td><span class="tag">${p.category}</span></td>
+      <td>${p.qty.toLocaleString()}</td>
+      <td style="color:var(--primary-dark);font-weight:600;">¥${(p.amount/10000).toFixed(1)}万</td>
+      <td>${p.orders.toLocaleString()}</td>
+      <td><div style="width:100px;height:16px;background:var(--bg);border-radius:3px;overflow:hidden;"><div style="width:${barPct}%;height:100%;background:var(--primary);border-radius:3px;"></div></div></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function renderMatrix(d) {
+  const el = document.getElementById('sales-matrix');
+  const cats = d.categories;
+  let html = '<table style="font-size:12px;"><thead><tr><th>区域 \\ 品类</th>';
+  cats.forEach(c => html += `<th style="white-space:nowrap;">${c}</th>`);
+  html += '<th style="font-weight:700;">合计</th></tr></thead><tbody>';
+
+  d.rows.forEach(row => {
+    html += `<tr><td><b>${row.region}</b></td>`;
+    cats.forEach(c => {
+      const v = row[c] || 0;
+      const color = v > 100000 ? 'var(--primary-dark)' : 'var(--text)';
+      const weight = v > 100000 ? '600' : '400';
+      html += `<td style="text-align:right;color:${color};font-weight:${weight};">${v > 0 ? '¥' + (v/10000).toFixed(1) + '万' : '-'}</td>`;
+    });
+    html += `<td style="text-align:right;font-weight:700;color:var(--primary-dark);">¥${(row.total/10000).toFixed(1)}万</td></tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function fillCategorySelects(cats) {
+  ['sales-monthly-cat', 'sales-product-cat'].forEach(id => {
+    const sel = document.getElementById(id);
+    cats.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+// ========== 蒲公英链接直达查询 ==========
+let pgyLinkData = null;   // 当前链接查询的达人完整数据
+
+function pgyEsc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function pgyFmtPrice(p) {
+  if (p === null || p === undefined || p === '') return '—';
+  const n = Number(p);
+  if (!isFinite(n) || n <= 0) return pgyEsc(String(p));
+  return n >= 10000 ? '¥' + (n / 10000).toFixed(1) + '万' : '¥' + n.toLocaleString();
+}
+
+function pgyFmtPct(p) {
+  if (p === null || p === undefined || p === '') return '—';
+  const s = String(p);
+  return s.includes('%') ? s : s + '%';
+}
+
+async function pgyLinkQuery() {
+  const link = document.getElementById('pgy-link-input').value.trim();
+  if (!link) return toast('请先粘贴蒲公英达人链接', 'error');
+  const el = document.getElementById('pgy-link-result');
+  const btn = document.getElementById('pgy-link-btn');
+  btn.disabled = true; btn.textContent = '⏳ 查询中...';
+  el.innerHTML = '<div class="empty"><p>⏳ 正在查询达人数据，请稍候…</p></div>';
+  try {
+    const resp = await fetch(API + '/api/pgy/kols_by_link', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({link})
+    });
+    const d = await resp.json();
+    if (!d.success) {
+      el.innerHTML = `<div class="empty"><p style="color:var(--error);">❌ ${pgyEsc(d.msg || '查询失败')}</p></div>`;
+      return;
+    }
+    pgyLinkData = d.data;
+    renderPgyLinkResult(d.data);
+    toast('达人数据加载完成', 'success');
+  } catch(e) {
+    el.innerHTML = `<div class="empty"><p style="color:var(--error);">❌ 请求失败：${pgyEsc(e.message)}</p></div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = '🔍 查询达人';
+  }
+}
+
+function renderPgyLinkResult(d) {
+  const b = d.base || {};
+  const sum = d.detail || {};   // dataSummary 数据摘要
+  const fans = d.fans || {};    // fansSummary 粉丝摘要
+  const notes = d.notes || {};  // notesRate 笔记表现
+  const ov = d.overflow || {};  // 外溢进店 & 合作笔记指标
+  const ft = (d.feature_tags && d.feature_tags.data) || [];
+  const ct = (d.content_tags && d.content_tags.data) || [];
+  const sim = ((d.similar && d.similar.data) || {}).kols || [];
+  const el = document.getElementById('pgy-link-result');
+
+  const nn = (v) => (v === null || v === undefined || v === '') ? '—' : fmtNum(v);
+  const ftNames = ft.map(x => typeof x === 'string' ? x : (x.name || '')).filter(Boolean);
+  const ctNames = ct.map(x => typeof x === 'string' ? x : (x.taxonomy1Tag || x.name || '')).filter(Boolean);
+  const tagChips = (arr) => arr.map(t => `<span style="display:inline-block;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:2px 10px;font-size:12px;margin:0 6px 6px 0;">${pgyEsc(t)}</span>`).join('');
+
+  const mcn = b.noteSign && (b.noteSign.name || b.noteSign.userId);
+  const cooperate = b.cooperateState === 1 ? '可合作' : (b.cooperateState === 0 ? '暂停合作' : '—');
+  const item = (label, val) => `<div style="flex:1 1 25%;min-width:120px;margin-bottom:8px;">
+      <div style="font-size:11px;color:var(--text-light);margin-bottom:2px;">${label}</div>
+      <div style="font-size:14px;font-weight:600;">${val}</div>
+    </div>`;
+  const sub = (v, beyond) => v + (beyond != null && beyond !== '' ? `<span style="color:var(--success);font-size:11px;font-weight:400;"> 超${beyond}%</span>` : '');
+
+  el.innerHTML = `
+  <div style="border:1px solid var(--border);border-radius:12px;padding:14px;">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <img src="${pgyEsc(b.headPhoto || '')}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--bg);" onerror="this.style.visibility='hidden'">
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:17px;font-weight:700;">${pgyEsc(b.name || '未知达人')}</div>
+        <div style="font-size:12px;color:var(--text-light);margin-top:4px;">
+          小红书号：${pgyEsc(b.redId || '—')} · ${pgyEsc(b.location || '—')}${mcn ? ' · MCN：' + pgyEsc(mcn) : ''} · ${cooperate}
+        </div>
+        <div style="margin-top:6px;">${tagChips(ftNames)}</div>
+      </div>
+      <div style="text-align:right;min-width:150px;">
+        <div style="font-size:22px;font-weight:700;color:var(--primary);">${nn(b.fansCount)}</div>
+        <div style="font-size:11px;color:var(--text-light);">粉丝</div>
+        <div style="font-size:12px;margin-top:6px;">图文 <b>${pgyFmtPrice(b.picturePrice)}</b><br>视频 <b>${pgyFmtPrice(b.videoPrice)}</b></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
+      ${item('近30天涨粉率', sub(pgyFmtPct(sum.fans30GrowthRate), sum.fans30GrowthBeyondRate))}
+      ${item('阅读中位数', sub(nn(sum.readMedian), sum.readMedianBeyondRate))}
+      ${item('互动中位数', sub(nn(sum.interactionMedian), sum.interactionBeyondRate))}
+      ${item('消息回复率', pgyFmtPct(sum.responseRate))}
+      ${item('近7天活跃', sum.activeDayInLast7 != null ? `${sum.activeDayInLast7}/7 天` : '—')}
+      ${item('笔记数', sum.noteNumber != null ? `${sum.noteNumber} 篇` : '—')}
+      ${item('图文阅读成本', pgyFmtPrice(sum.pictureReadCost))}
+      ${item('视频阅读成本', pgyFmtPrice(sum.videoReadCost))}
+    </div>
+
+    <div style="font-size:12px;font-weight:700;margin:12px 0 6px;color:var(--text-light);">粉丝画像</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${item('粉丝总数', nn(fans.fansNum))}
+      ${item('近30天涨粉', nn(fans.fansIncreaseNum) + ' (' + pgyFmtPct(fans.fansGrowthRate) + ')')}
+      ${item('28天活跃粉丝', nn(fans.activeFansL28) + ' (' + pgyFmtPct(fans.activeFansRate) + ')')}
+      ${item('互动粉丝率', pgyFmtPct(fans.engageFansRate))}
+      ${item('30天阅读粉丝', nn(fans.readFansIn30) + ' (' + pgyFmtPct(fans.readFansRate) + ')')}
+      ${item('30天付费粉丝', nn(fans.payFansUserNum30d) + ' (' + pgyFmtPct(fans.payFansUserRate30d) + ')')}
+    </div>
+
+    <div style="font-size:12px;font-weight:700;margin:12px 0 6px;color:var(--text-light);">笔记表现</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${item('笔记数', notes.noteNumber != null ? `${notes.noteNumber} 篇（视频${notes.videoNoteNumber || 0}）` : '—')}
+      ${item('点赞中位数', nn(notes.likeMedian))}
+      ${item('收藏中位数', nn(notes.collectMedian))}
+      ${item('评论中位数', nn(notes.commentMedian))}
+      ${item('分享中位数', nn(notes.shareMedian))}
+      ${item('视频完播率', pgyFmtPct(notes.videoFullViewRate))}
+      ${item('点赞破百占比', pgyFmtPct(notes.hundredLikePercent))}
+      ${item('点赞破千占比', pgyFmtPct(notes.thousandLikePercent))}
+    </div>
+
+    <div style="font-size:12px;font-weight:700;margin:12px 0 6px;color:var(--text-light);">外溢进店 &amp; 合作笔记</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${item('外溢进店中位数(近30日)', nn(ov.mCpuvNum30d))}
+      ${item('预估外溢进店单价', nn(ov.estimateCpuv30d))}
+      ${item('近30天合作笔记', ov.coopNoteNum30d != null ? `${ov.coopNoteNum30d} 篇` : '—')}
+      ${item('合作笔记阅读中位', nn(ov.readMidCoop30))}
+      ${item('合作笔记互动中位', nn(ov.interMidCoop30))}
+      ${item('合作笔记曝光中位', nn(ov.accumCoopImpMedinNum30d))}
+    </div>
+    <div id="pgy-coop-notes" style="margin-top:10px;"></div>
+
+    ${ctNames.length ? `<div style="margin-top:12px;"><span style="font-size:12px;color:var(--text-light);margin-right:6px;">内容标签：</span>${tagChips(ctNames)}</div>` : ''}
+    ${sim.length ? `<div style="margin-top:12px;">
+      <div style="font-size:12px;color:var(--text-light);margin-bottom:4px;">相似达人：</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">${sim.map(s => `<span style="background:var(--bg);border-radius:8px;padding:4px 10px;font-size:12px;">${pgyEsc(s.name || '')} · ${fmtNum(s.fansCount || 0)}粉 · ${pgyFmtPrice(s.videoPrice)}</span>`).join('')}</div>
+    </div>` : ''}
+
+    <div style="margin-top:14px;text-align:right;">
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="loadPgyCoopNotes(this)">📋 查看合作笔记明细</button>
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="syncPgyLinkToFeishu(this)">📘 同步此达人到飞书</button>
+    </div>
+  </div>`;
+}
+
+async function loadPgyCoopNotes(btn) {
+  if (!pgyLinkData) return toast('暂无达人数据', 'error');
+  const uid = (pgyLinkData.base || {}).userId;
+  if (!uid) return toast('缺少达人ID', 'error');
+  const box = document.getElementById('pgy-coop-notes');
+  if (!box) return toast('页面结构异常', 'error');
+  btn.disabled = true; btn.textContent = '⏳ 抓取合作笔记中（约15秒）...';
+  box.innerHTML = '<div class="empty"><p>⏳ 正在通过浏览器抓取该达人的合作笔记明细，约需 15 秒…</p></div>';
+  try {
+    const resp = await fetch(API + '/api/pgy/coop_notes', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({user_id: uid})
+    });
+    const d = await resp.json();
+    if (!d.success) {
+      box.innerHTML = `<div class="empty"><p style="color:var(--error);">❌ ${pgyEsc(d.msg || '抓取失败')}</p></div>`;
+      return;
+    }
+    const data = d.data || {};
+    const list = data.notes || [];
+    const rows = list.map(n => `
+      <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--border);align-items:center;">
+        <img src="${pgyEsc(n.imgUrl || '')}" style="width:52px;height:52px;border-radius:8px;object-fit:cover;background:var(--bg);" onerror="this.style.visibility='hidden'">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${pgyEsc(n.title || '—')}</div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:2px;">
+            ${pgyEsc(n.brandName || '未标品牌')}${n.isAdvertise ? ' · <span style="color:var(--primary);">广告笔记</span>' : ''} · ${pgyEsc(n.date || '')} · ${n.isVideo ? '视频' : '图文'}
+          </div>
+        </div>
+        <div style="text-align:right;font-size:12px;color:var(--text-light);white-space:nowrap;">
+          阅读 <b>${fmtNum(n.readNum || 0)}</b> · 赞 <b>${fmtNum(n.likeNum || 0)}</b> · 藏 <b>${fmtNum(n.collectNum || 0)}</b><br>
+          <span style="color:var(--primary-dark);font-weight:600;">外溢进店 <b>${fmtNum(n.thirdReadUserNum || 0)}</b> 人</span>
+        </div>
+      </div>`).join('');
+    const med = data.overflow_median;
+    const medNonZ = data.overflow_median_nonzero;
+    box.innerHTML = `<div style="font-size:12px;color:var(--text-light);margin-bottom:4px;">共 ${data.total || list.length} 条笔记（展示近 ${list.length} 条）：
+      <span style="color:var(--primary-dark);font-weight:700;">外溢进店中位数 ${fmtNum(med)} 人</span>${medNonZ ? ` <span style="color:var(--text-light);">（${data.overflow_nonzero_count} 条有进店，非0中位 ${fmtNum(medNonZ)} 人）</span>` : ' <span style="color:var(--text-light);">（暂无跨域外溢数据）</span>'}</div>${rows || '<div class="empty"><p>该达人暂无笔记数据</p></div>'}`;
+    toast(`合作笔记已加载（${d.cached ? '命中缓存' : '实时抓取'}）`, 'success');
+  } catch(e) {
+    box.innerHTML = `<div class="empty"><p style="color:var(--error);">❌ 请求失败：${pgyEsc(e.message)}</p></div>`;
+  }
+  btn.disabled = false; btn.textContent = '📋 查看合作笔记明细';
+}
+
+async function syncPgyLinkToFeishu(btn) {
+  if (!pgyLinkData) return toast('暂无达人数据', 'error');
+  const b = pgyLinkData.base || {};
+  const kol = {
+    userId: b.userId, name: b.name, redId: b.redId, headPhoto: b.headPhoto,
+    location: b.location, fansCount: b.fansCount,
+    picturePrice: b.picturePrice, videoPrice: b.videoPrice,
+    personalTags: b.personalTags || [],
+  };
+  try {
+    await checkFeishuReady();
+  } catch(msg) { return toast(msg, 'error'); }
+  btn.disabled = true; btn.textContent = '⏳ 同步中...';
+  try {
+    const resp = await fetch(API + '/api/feishu/sync_kols', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({kols: [kol]})
+    });
+    const data = await resp.json();
+    toast(data.msg, data.success ? 'success' : 'error');
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '📘 同步此达人到飞书';
+}
+
+// ========== AI 品牌匹配评估 ==========
+function pgyFmtFans(n) {
+  n = Number(n) || 0;
+  return n >= 10000 ? (n / 10000).toFixed(1) + '万' : String(n);
+}
+
+async function pgyBrandMatch() {
+  const profile = document.getElementById('pgy-brand-profile').value.trim();
+  if (!profile) {
+    alert('请先描述品牌画像，例如：高端护肤品牌，主打抗老精华，目标25-35岁女性，客单价300-800，单次投放预算10万，风格高级简约');
+    return;
+  }
+  const num = document.getElementById('pgy-brand-num').value;
+  const topN = document.getElementById('pgy-brand-topn').value;
+  const el = document.getElementById('pgy-brand-result');
+  const btn = document.getElementById('pgy-brand-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 评估中…';
+  el.innerHTML = `<div class="empty"><p>🤖 正在从蒲公英拉取 ${num} 位达人并评估匹配度，约需 ${Math.max(10, Math.round(num / 4))} 秒，请稍候…</p></div>`;
+  try {
+    const resp = await fetch(API + '/api/pgy/brand_match', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brand_profile: profile, num: num, top_n: topN })
+    });
+    const d = await resp.json();
+    if (!d.success) {
+      el.innerHTML = `<div class="empty"><p style="color:var(--error);">❌ ${pgyEsc(d.msg || '评估失败')}</p></div>`;
+      return;
+    }
+    const data = d.data;
+    const profileBrief = data.profile || {};
+    el.innerHTML = `
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--text);margin-bottom:10px;">
+        <b>📋 品牌画像解析</b>：类目 <b>${profileBrief.categories && profileBrief.categories.length ? profileBrief.categories.join('/') : '未识别'}</b> ·
+        调性 ${(profileBrief.style_tags || []).join('/') || '未识别'} ·
+        人群 ${(profileBrief.gender || '不限') + ((profileBrief.age ? (' ' + profileBrief.age[0] + '-' + profileBrief.age[1] + '岁') : ''))} ·
+        预算 ${profileBrief.budget ? '¥' + Number(profileBrief.budget).toLocaleString() : '未提及'} · 客单价 ${profileBrief.price_range ? '¥' + profileBrief.price_range[0] + '-' + profileBrief.price_range[1] : '未提及'}
+      </div>
+      <div style="font-size:12.5px;color:var(--text-light);margin-bottom:10px;">🔎 共扫描 <b>${data.scanned}</b> 位达人，推荐 Top <b>${data.best.length}</b>（${pgyEsc(data.mode)}）</div>
+      ${data.best.map(pgyBrandRowHTML).join('')}`;
+  } catch (e) {
+    el.innerHTML = `<div class="empty"><p style="color:var(--error);">❌ 请求失败：${pgyEsc(e.message)}</p></div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🤖 开始评估';
+  }
+}
+
+function pgyBrandRowHTML(r, idx) {
+  const rank = idx + 1;
+  const badge = ['🥇', '🥈', '🥉'][idx] || `<span style="background:var(--bg);border:1px solid var(--border);border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;color:var(--text-light);">${rank}</span>`;
+  const scoreColor = v => v >= 70 ? 'var(--success)' : (v >= 50 ? 'var(--warning)' : 'var(--text-light)');
+  const chips = (arr, n) => (arr || []).slice(0, n).map(t => `<span style="display:inline-block;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1px 9px;font-size:11.5px;margin:0 5px 5px 0;color:var(--text);">${pgyEsc(t)}</span>`).join('');
+  const llm = (r.llm_score != null) ? `
+      <div style="margin-top:8px;font-size:12px;background:rgba(124,92,255,.07);border:1px solid rgba(124,92,255,.25);border-radius:8px;padding:8px 11px;color:var(--text);">
+        <div><b style="color:var(--primary);">🤖 LLM 精评 ${Number(r.llm_score).toFixed(0)} 分</b></div>
+        ${(r.reasons || []).map(x => '<div style="margin-top:3px;">· ' + pgyEsc(x) + '</div>').join('')}
+        ${r.suggestion ? `<div style="margin-top:5px;color:var(--success);">💡 ${pgyEsc(r.suggestion)}</div>` : ''}
+      </div>` : '';
+  return `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="font-size:22px;width:26px;text-align:center;flex-shrink:0;">${badge}</div>
+        <img src="${pgyEsc(r.head_photo || '')}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;background:var(--bg);flex-shrink:0;" onerror="this.style.visibility='hidden'">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:700;color:var(--text);">${pgyEsc(r.name || '未知达人')}</div>
+          <div style="font-size:12px;color:var(--text-light);margin-top:2px;">粉丝 <b>${pgyFmtFans(r.fans)}</b> · 图文报价 <b>${pgyFmtPrice(r.price)}</b></div>
+          <div style="margin-top:5px;">${chips(r.hit_cats, 3)}${chips(r.tags, 5)}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:24px;font-weight:800;color:${scoreColor(r.final_score)};">${Number(r.final_score).toFixed(0)}</div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:2px;">综合分</div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:3px;">规则 ${Number(r.rule_score).toFixed(0)}${r.llm_score != null ? ' / LLM ' + Number(r.llm_score).toFixed(0) : ''}</div>
+        </div>
+      </div>
+      ${llm}
+    </div>`;
+}
+
+// ========== 蒲公英达人筛选 ==========
+let pgyData = [];
+
+async function loadPgyStatus() {
+  const el = document.getElementById('pgy-status');
+  el.innerHTML = '<span style="color:var(--text-light);">⏳ 检查蒲公英Cookie状态…</span>';
+  try {
+    const resp = await fetch(API + '/api/pgy/status');
+    const data = await resp.json();
+    if (data.success && data.data.valid) {
+      const d = data.data;
+      el.innerHTML = `<span style="color:var(--success);font-weight:600;">✅ 蒲公英已连接</span>
+        <span style="color:var(--text-light);margin-left:8px;">品牌：<b>${d.nickname}</b> · ${d.company} · 店铺：${d.shop}</span>`;
+      loadPgyCategories();
+    } else {
+      el.innerHTML = `<span style="color:var(--error);">❌ 蒲公英Cookie无效或未配置</span>
+        <span style="color:var(--text-light);margin-left:8px;">请先配置 PGY_COOKIES（详见 .env）</span>`;
+    }
+  } catch (e) {
+    el.innerHTML = `<span style="color:var(--error);">❌ 无法连接后端：${e.message}</span>`;
+  }
+}
+
+async function loadPgyCategories() {
+  try {
+    const resp = await fetch(API + '/api/pgy/categories');
+    const data = await resp.json();
+    if (data.success) {
+      const sel = document.getElementById('pgy-category');
+      data.data.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.taxonomy1Tag;
+        opt.textContent = c.taxonomy1Tag;
+        sel.appendChild(opt);
+      });
+    }
+  } catch (e) { /* ignore */ }
+}
+
+async function pgySearch() {
+  const category = document.getElementById('pgy-category').value;
+  const keyword = document.getElementById('pgy-keyword').value.trim();
+  const minFans = document.getElementById('pgy-min-fans').value;
+  const minOverflow = document.getElementById('pgy-min-overflow').value;
+  const btn = document.getElementById('pgy-search-btn');
+  btn.disabled = true; btn.textContent = '⏳ 搜索中...';
+
+  try {
+    const resp = await fetch(API + '/api/pgy/kols', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        page: 1,
+        category: category || null,
+        keyword: keyword || null,
+        min_fans: minFans ? parseInt(minFans) : null,
+        min_overflow: minOverflow ? parseInt(minOverflow) : null,
+        num: 20
+      })
+    });
+    const data = await resp.json();
+    if (data.success) {
+      pgyData = data.data.kols;
+      document.getElementById('pgy-result-card').style.display = 'block';
+      document.getElementById('pgy-result-count').textContent = `（共 ${data.data.total} 位达人，显示前 ${pgyData.length} 位）`;
+      renderPgyResults(pgyData);
+      toast(`找到 ${pgyData.length} 位达人`, 'success');
+    } else {
+      toast('搜索失败: ' + data.msg, 'error');
+    }
+  } catch (e) {
+    toast('搜索失败: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '🔍 搜索达人';
+  }
+}
+
+function fmtFans(n) {
+  if (n >= 100000000) return (n/100000000).toFixed(1) + '亿';
+  if (n >= 10000) return (n/10000).toFixed(1) + '万';
+  return n || 0;
+}
+
+function fmtPrice(p) {
+  if (p === null || p === undefined || p === 0) return '-';
+  if (p >= 10000) return '¥' + (p/10000).toFixed(1) + '万';
+  return '¥' + p;
+}
+
+function renderPgyResults(kols) {
+  const el = document.getElementById('pgy-result-table');
+  if (!kols || !kols.length) {
+    el.innerHTML = '<div class="empty"><p>未找到符合条件的达人</p></div>';
+    return;
+  }
+  let html = '<table><thead><tr>' +
+    '<th>#</th><th>达人</th><th>粉丝数</th><th>外溢进店</th><th>互动中位数</th><th>位置</th><th>标签</th><th>图文报价</th><th>视频报价</th></tr></thead><tbody>';
+  kols.forEach((k, i) => {
+    const tags = (k.personalTags || []).slice(0, 3).map(t =>
+      `<span class="tag">${typeof t === 'string' ? t : (t.name || '')}</span>`).join(' ');
+    const overflow = k.overflowNum || 0;
+    const overflowHtml = overflow > 0
+      ? `<span style="color:var(--primary-dark);font-weight:600;">${fmtFans(overflow)}</span>`
+      : '<span style="color:var(--text-light);">-</span>';
+    html += `<tr>
+      <td>${i+1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${k.headPhoto ? `<img src="${k.headPhoto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" onerror="this.style.display='none'">` : ''}
+          <div>
+            <b>${k.name}</b>
+            <div style="font-size:12px;color:var(--text-light);">${k.redId || ''}${k.gender ? ' · ' + k.gender : ''}</div>
+          </div>
+        </div>
+      </td>
+      <td><b>${fmtFans(k.fansCount)}</b>${k.fans30GrowthRate ? `<div style="font-size:11px;color:var(--text-light);">30天+${k.fans30GrowthRate}%</div>` : ''}</td>
+      <td>${overflowHtml}</td>
+      <td style="font-size:13px;">${k.interMidNum ? fmtFans(k.interMidNum) : '-'}</td>
+      <td style="font-size:13px;">${k.location || '-'}</td>
+      <td style="font-size:12px;">${tags || '-'}</td>
+      <td>${fmtPrice(k.picturePrice)}</td>
+      <td>${fmtPrice(k.videoPrice)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function exportPgyData() {
+  if (!pgyData.length) return toast('暂无数据可导出', 'error');
+  const blob = new Blob([JSON.stringify(pgyData, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pgy_kols_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('已导出 ' + pgyData.length + ' 位达人', 'success');
+}
+
+// Tab切换 - 加载蒲公英状态
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (tab.dataset.tab === 'sales') loadSalesData();
+    if (tab.dataset.tab === 'pgy') loadPgyStatus();
+  });
+});
+
+// 初始化
+checkDyCookie();
+loadPgyStatus();
+
+// ========== 飞书同步 ==========
+window._lastXhsContent = null;
+window._lastDyContent = null;
+
+async function loadFeishuConfig() {
+  try {
+    const resp = await fetch(API + '/api/feishu/config');
+    const data = await resp.json();
+    if (data.success) {
+      const c = data.data;
+      document.getElementById('feishu-app-id').value = c.app_id || '';
+      document.getElementById('feishu-app-token').value = c.app_token || '';
+      document.getElementById('feishu-table-id').value = c.table_id || '';
+      const statusEl = document.getElementById('feishu-config-status');
+      if (c.configured) {
+        statusEl.textContent = '✅ 已配置';
+        statusEl.style.color = '#2E7D32';
+      } else {
+        statusEl.textContent = '（未配置）';
+      }
+    }
+  } catch(e) {}
+}
+
+async function saveFeishuConfig() {
+  const body = {
+    app_id: document.getElementById('feishu-app-id').value.trim(),
+    app_secret: document.getElementById('feishu-app-secret').value.trim(),
+    app_token: document.getElementById('feishu-app-token').value.trim(),
+    table_id: document.getElementById('feishu-table-id').value.trim()
+  };
+  if (!body.app_id || !body.app_token || !body.table_id) {
+    return toast('请至少填写 App ID / App Token / Table ID', 'error');
+  }
+  try {
+    const resp = await fetch(API + '/api/feishu/config', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    });
+    const data = await resp.json();
+    if (data.success) {
+      toast('飞书配置已保存', 'success');
+      document.getElementById('feishu-app-secret').value = '';
+      loadFeishuConfig();
+    } else {
+      toast(data.msg || '保存失败', 'error');
+    }
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+}
+
+async function testFeishu() {
+  const btn = event.currentTarget;
+  btn.disabled = true; btn.textContent = '⏳ 测试中...';
+  const resultEl = document.getElementById('feishu-result');
+  try {
+    const resp = await fetch(API + '/api/feishu/test', {method: 'POST'});
+    const data = await resp.json();
+    resultEl.innerHTML = `<span style="color:${data.success ? '#2E7D32' : '#C62828'};">${data.success ? '✅' : '❌'} ${data.msg}</span>`;
+    if (data.success) toast('飞书连接成功！', 'success');
+  } catch(e) {
+    resultEl.innerHTML = `<span style="color:#C62828;">❌ 请求失败: ${e.message}</span>`;
+  }
+  btn.disabled = false; btn.textContent = '🔌 测试连接';
+}
+
+function showFeishuGuide(e) {
+  e.preventDefault();
+  const el = document.getElementById('feishu-guide');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function checkFeishuReady() {
+  return new Promise((resolve, reject) => {
+    fetch(API + '/api/feishu/config')
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.data.configured) resolve(true);
+        else reject('请先在「设置」页完成飞书配置');
+      })
+      .catch(() => reject('无法访问后端服务'));
+  });
+}
+
+// 达人 → 飞书
+async function syncPgyToFeishu() {
+  if (!pgyData.length) return toast('暂无达人数据，请先搜索', 'error');
+  try {
+    await checkFeishuReady();
+  } catch(msg) { return toast(msg, 'error'); }
+  const btn = event.currentTarget;
+  btn.disabled = true; btn.textContent = '⏳ 同步中...';
+  try {
+    const resp = await fetch(API + '/api/feishu/sync_kols', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({kols: pgyData})
+    });
+    const data = await resp.json();
+    toast(data.msg, data.success ? 'success' : 'error');
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '📘 同步到飞书';
+}
+
+// 笔记 → 飞书
+async function syncNotesToFeishu() {
+  if (!xhsData.length) return toast('暂无笔记数据，请先搜索', 'error');
+  try {
+    await checkFeishuReady();
+  } catch(msg) { return toast(msg, 'error'); }
+  const btn = event.currentTarget;
+  btn.disabled = true; btn.textContent = '⏳ 同步中...';
+  try {
+    const resp = await fetch(API + '/api/feishu/sync_notes', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({notes: xhsData})
+    });
+    const data = await resp.json();
+    toast(data.msg, data.success ? 'success' : 'error');
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '📘 同步到飞书';
+}
+
+// 内容 → 飞书
+async function syncContentToFeishu(platform) {
+  const c = platform === 'xhs' ? window._lastXhsContent : window._lastDyContent;
+  if (!c) return toast('请先生成内容', 'error');
+  try {
+    await checkFeishuReady();
+  } catch(msg) { return toast(msg, 'error'); }
+  const items = [{
+    platform: platform === 'xhs' ? '小红书' : '抖音',
+    topic: platform === 'xhs' ? document.getElementById('gen-xhs-topic').value : document.getElementById('gen-dy-topic').value,
+    angle: platform === 'xhs' ? (c.angle || '') : (c.video_type || ''),
+    title: c.title || c.hook || '',
+    body: c.body || c.script || ''
+  }];
+  try {
+    const resp = await fetch(API + '/api/feishu/sync_content', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({items})
+    });
+    const data = await resp.json();
+    toast(data.msg, data.success ? 'success' : 'error');
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+}
+
+// 销售快照 → 飞书
+async function syncSalesToFeishu() {
+  try {
+    await checkFeishuReady();
+  } catch(msg) { return toast(msg, 'error'); }
+  try {
+    const resp = await fetch(API + '/api/feishu/sync_sales', {method: 'POST'});
+    const data = await resp.json();
+    toast(data.msg, data.success ? 'success' : 'error');
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+}
+
+loadFeishuConfig();
+
+/* ========== 小红书扫码登录 ========== */
+let _qrPollTimer = null;
+
+async function startQrLogin() {
+  const btn = document.getElementById('qr-login-btn');
+  btn.disabled = true; btn.textContent = '⏳ 生成二维码...';
+  try {
+    const resp = await fetch(API + '/api/xhs/qr_login/start', {method: 'POST'});
+    const data = await resp.json();
+    if (data.success) {
+      showQrModal(data.data.qr_image);
+      pollQrLogin();
+    } else {
+      toast(data.msg || '生成二维码失败', 'error');
+    }
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = '📱 扫码刷新登录';
+}
+
+function showQrModal(qrImageB64) {
+  let modal = document.getElementById('qr-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'qr-modal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
+    modal.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:32px;text-align:center;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+        <div style="font-size:18px;font-weight:600;margin-bottom:8px;">小红书扫码登录</div>
+        <div id="qr-status" style="font-size:14px;color:#666;margin-bottom:16px;">请使用小红书 APP 扫描二维码</div>
+        <img id="qr-img" style="width:240px;height:240px;border-radius:8px;" />
+        <div style="margin-top:16px;">
+          <button onclick="closeQrModal()" style="padding:8px 24px;border:1px solid #ddd;border-radius:8px;background:#f5f5f5;cursor:pointer;font-size:14px;">取消</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+  document.getElementById('qr-img').src = 'data:image/png;base64,' + qrImageB64;
+  document.getElementById('qr-status').textContent = '请使用小红书 APP 扫描二维码';
+  document.getElementById('qr-status').style.color = '#666';
+  modal.style.display = 'flex';
+}
+
+function closeQrModal() {
+  const modal = document.getElementById('qr-modal');
+  if (modal) modal.style.display = 'none';
+  if (_qrPollTimer) { clearInterval(_qrPollTimer); _qrPollTimer = null; }
+}
+
+async function pollQrLogin() {
+  if (_qrPollTimer) clearInterval(_qrPollTimer);
+  _qrPollTimer = setInterval(async () => {
+    try {
+      const resp = await fetch(API + '/api/xhs/qr_login/poll');
+      const data = await resp.json();
+      if (!data.success) {
+        clearInterval(_qrPollTimer); _qrPollTimer = null;
+        closeQrModal();
+        toast(data.msg || '登录失败', 'error');
+        return;
+      }
+      const st = data.data;
+      const statusEl = document.getElementById('qr-status');
+      if (st.status === 'waiting') {
+        if (st.msg && st.msg.includes('确认')) {
+          statusEl.textContent = '✅ 已扫码，请在手机上确认登录';
+          statusEl.style.color = '#4CAF50';
+        } else {
+          statusEl.textContent = '请使用小红书 APP 扫描二维码';
+        }
+      } else if (st.status === 'success') {
+        clearInterval(_qrPollTimer); _qrPollTimer = null;
+        closeQrModal();
+        toast('登录成功！欢迎 ' + (st.nickname || '') + '，Cookie 已刷新', 'success');
+      }
+    } catch(e) {}
+  }, 2000);
+}
+</script>
+</body>
+</html>

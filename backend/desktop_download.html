@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>林清轩 · 达人素材桌面下载器</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:#F6F3EE; color:#2C2420; min-height:100vh; }
+header { background:linear-gradient(135deg,#2C2420 0%,#4A3D32 100%); color:#fff; padding:26px 32px; }
+header h1 { font-size:20px; font-weight:600; display:flex; align-items:center; gap:10px; }
+header h1 .dot { width:10px; height:10px; border-radius:50%; background:#C8A86E; display:inline-block; }
+header p { color:rgba(255,255,255,.6); font-size:13px; margin-top:6px; }
+main { max-width:860px; margin:0 auto; padding:28px 24px 80px; }
+.card { background:#fff; border-radius:14px; padding:24px; box-shadow:0 2px 12px rgba(0,0,0,.05); margin-bottom:20px; }
+.card h2 { font-size:15px; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.card h2 .num { background:#C8A86E; color:#fff; font-size:11px; border-radius:10px; padding:1px 8px; }
+.step { color:#8A7F76; font-size:12px; margin-bottom:14px; }
+textarea { width:100%; min-height:150px; border:1px solid #E3DDD3; border-radius:10px; padding:12px; font-size:13px; font-family:inherit; resize:vertical; outline:none; background:#FCFBF9; }
+textarea:focus { border-color:#C8A86E; }
+.actions { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; align-items:center; }
+.btn { border:none; padding:11px 26px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:all .15s; }
+.btn-primary { background:linear-gradient(135deg,#C8A86E,#A8884E); color:#fff; }
+.btn-primary:hover { opacity:.9; transform:translateY(-1px); }
+.btn-primary:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.btn-ghost { background:#fff; border:1px solid #E3DDD3; color:#2C2420; }
+.btn-ghost:hover { border-color:#C8A86E; color:#A8884E; }
+.hint { font-size:12px; color:#A89885; margin-top:10px; line-height:1.6; }
+.path-bar { background:#F6F1E8; border:1px dashed #D9CDB8; border-radius:10px; padding:10px 14px; font-size:12px; color:#7A6C5C; display:flex; align-items:center; gap:8px; word-break:break-all; }
+.path-bar code { font-family:Menlo,monospace; color:#2C2420; }
+.status { margin-top:16px; }
+.stat-row { display:flex; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+.stat { flex:1; min-width:90px; background:#F8F5EF; border-radius:10px; padding:10px 14px; text-align:center; }
+.stat b { font-size:22px; display:block; color:#2C2420; }
+.stat span { font-size:11px; color:#8A7F76; }
+.stat.ok b { color:#B8863B; }
+.results { margin-top:8px; }
+.item { border:1px solid #EEE7DC; border-radius:10px; padding:12px 14px; margin-bottom:8px; font-size:13px; display:flex; align-items:flex-start; gap:10px; }
+.item .icon { width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+.item.ok .icon { background:#2E9E5B; }
+.item.err .icon { background:#D64545; }
+.item.skip .icon { background:#C9A227; }
+.item .body { flex:1; min-width:0; }
+.item .t { font-weight:600; }
+.item .d { color:#8A7F76; font-size:12px; margin-top:2px; word-break:break-all; }
+.item .link { color:#A8884E; font-size:11px; text-decoration:none; }
+.log { background:#2C2420; color:#D8D0C4; border-radius:10px; padding:12px 14px; font-size:12px; font-family:Menlo,monospace; max-height:180px; overflow:auto; display:none; white-space:pre-wrap; }
+.log.show { display:block; }
+/* 抖音区块 */
+.cookie-bar { display:flex; align-items:center; gap:8px; font-size:12px; padding:8px 12px; border-radius:8px; margin-bottom:14px; background:#F6F1E8; }
+.cookie-bar .tag { padding:1px 8px; border-radius:8px; font-size:11px; font-weight:600; }
+.tag-ok { background:#2E9E5B; color:#fff; }
+.tag-no { background:#D64545; color:#fff; }
+.cookie-edit { display:none; margin-top:8px; }
+.cookie-edit.show { display:block; }
+.cookie-edit textarea { min-height:70px; font-size:11px; }
+.profile-head { display:flex; align-items:center; gap:12px; background:#F8F5EF; border-radius:12px; padding:14px 16px; margin:12px 0; }
+.profile-head .avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#C8A86E,#A8884E); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; flex-shrink:0; }
+.profile-head .nm { font-size:15px; font-weight:700; }
+.profile-head .sub { font-size:12px; color:#8A7F76; margin-top:2px; }
+.vgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:8px; }
+.vcard { border:1px solid #EEE7DC; border-radius:10px; overflow:hidden; background:#fff; }
+.vcard img { width:100%; aspect-ratio:3/4; object-fit:cover; display:block; background:#F0EAE0; }
+.vcard .vi { padding:7px 9px; }
+.vcard .vt { font-size:11px; color:#2C2420; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:30px; }
+.vcard .vd { font-size:10px; color:#A89885; margin-top:3px; }
+.pbar-wrap { height:8px; background:#F0EAE0; border-radius:5px; overflow:hidden; margin:12px 0 6px; display:none; }
+.pbar-wrap.show { display:block; }
+.pbar { height:100%; width:0; background:linear-gradient(90deg,#C8A86E,#A8884E); border-radius:5px; transition:width .4s; }
+.pstate { font-size:12px; color:#7A6C5C; margin-bottom:8px; }
+.pstate b { color:#2C2420; }
+footer { text-align:center; color:#A89885; font-size:12px; padding:20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="dot"></span>林清轩 · 达人素材桌面下载器</h1>
+  <p>抖音达人主页视频 + 金山文档（kdocs）素材图，一键下载到桌面 —— 不需要飞书、不需要插件容器</p>
+</header>
+<main>
+  <div class="card">
+    <h2><span class="num">A</span>抖音达人视频下载</h2>
+    <div class="step">粘贴达人主页链接（https://www.douyin.com/user/xxxx），读取视频列表后一键下载到桌面「林清轩素材/达人名/」</div>
+    <div class="cookie-bar" id="cookieBar">
+      <span>抖音登录状态：</span><span class="tag" id="cookieTag">检测中…</span>
+      <a href="javascript:void(0)" onclick="toggleCookieEdit()" style="color:#A8884E;margin-left:auto;">更新 Cookie</a>
+    </div>
+    <div class="cookie-edit" id="cookieEdit">
+      <textarea id="dyCookie" placeholder="粘贴抖音网页版 Cookie（F12 → Application → Cookies → douyin.com 任一条目复制整串）"></textarea>
+      <div class="actions">
+        <button class="btn btn-ghost" onclick="saveCookie()">💾 保存 Cookie</button>
+      </div>
+    </div>
+    <textarea id="dyUrls" placeholder="https://www.douyin.com/user/MS4wLjABAAAA...&#10;https://www.douyin.com/user/MS4wLjABAAAA...（每行一个达人主页）"></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="profileBtn" onclick="loadProfile()">🔍 读取视频列表</button>
+      <button class="btn btn-ghost" id="dlBtn" onclick="startDownload()" disabled>⬇ 下载全部视频</button>
+      <button class="btn btn-ghost" onclick="openFolder()">📂 打开桌面素材文件夹</button>
+    </div>
+    <div class="hint" id="dyHint">⚠️ 读取列表约需 15~30 秒；下载为后台任务，页面可关闭。视频自动按<b>达人昵称</b>建文件夹保存。</div>
+    <div id="profileBox"></div>
+    <div class="pbar-wrap" id="pbarWrap"><div class="pbar" id="pbar"></div></div>
+    <div class="pstate" id="pstate"></div>
+    <div class="results" id="dyResults"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">A2</span>抖音单条视频直接下载</h2>
+    <div class="step">粘贴单个视频链接（v.douyin.com 短链 / douyin.com/video/xxx / 分享链接），每行一条，一键下载到桌面「林清轩素材/作者名/」</div>
+    <textarea id="dySingleUrls" placeholder="https://v.douyin.com/xxxxx/&#10;https://www.douyin.com/video/7673759799817282213&#10;（每行一条，可一次粘贴多条）"></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="singleBtn" onclick="downloadSingle()">⬇ 直接下载</button>
+      <button class="btn btn-ghost" onclick="openFolder()">📂 打开桌面素材文件夹</button>
+    </div>
+    <div class="hint">⏱ 每条约需 10~20 秒（解析直链 + 下载），下载完成后自动打开结果列表。</div>
+    <div class="pbar-wrap" id="singlePbarWrap"><div class="pbar" id="singlePbar"></div></div>
+    <div class="pstate" id="singleState"></div>
+    <div class="results" id="singleResults"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">A3</span>小红书笔记图片+文案下载</h2>
+    <div class="step">粘贴小红书笔记链接（xhslink 短链 / xiaohongshu.com 完整链接 / 分享链接），每行一条，一键下载图片和文案到桌面「林清轩素材/作者名/」</div>
+    <textarea id="xhsUrls" placeholder="http://xhslink.cn/o/xxxxx&#10;https://www.xiaohongshu.com/explore/xxxxx?xsec_token=...&#10;（每行一条，可一次粘贴多条）"></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="xhsBtn" onclick="downloadXhs()">⬇ 下载图片+文案</button>
+      <button class="btn btn-ghost" onclick="openFolder()">📂 打开桌面素材文件夹</button>
+    </div>
+    <div class="hint">⏱ 每条约需 3~8 秒（解析笔记 + 下载图片），图片按序号命名，文案自动保存为 .txt 文件。</div>
+    <div class="pbar-wrap" id="xhsPbarWrap"><div class="pbar" id="xhsPbar"></div></div>
+    <div class="pstate" id="xhsState"></div>
+    <div class="results" id="xhsResults"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">1</span>粘贴 kdocs 链接（每行一个）</h2>
+    <div class="step">支持完整链接（https://www.kdocs.cn/l/xxxx）或纯链接ID（xxxx），可一次粘贴 60 个</div>
+    <textarea id="links" placeholder="https://www.kdocs.cn/l/ciWu4bGOl9as&#10;https://www.kdocs.cn/l/cehzxZezr08L&#10;..."></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="runBtn" onclick="run()">⬇ 下载到桌面</button>
+      <button class="btn btn-ghost" onclick="organize()">🗂 按达人名整理</button>
+      <button class="btn btn-ghost" onclick="openFolder()">📂 打开桌面素材文件夹</button>
+      <button class="btn btn-ghost" onclick="refreshList()">🔄 刷新已下载清单</button>
+    </div>
+    <div class="hint" id="hint">⚠️ 每处理一个链接需要 Edge 无头渲染约 5~15 秒，链接越多耗时越长，请耐心等待完成提示。</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">2</span>下载位置</h2>
+    <div class="path-bar">📁 桌面文件夹：<code id="path">~/Desktop/林清轩素材/&lt;达人名&gt;/</code></div>
+    <div class="hint">文件夹自动按<b>达人名称</b>命名（如「金巧巧」「于适」）；识别不到达人的按分类名（如「plog」「场景化」）；同一达人多批链接会合并到同一个文件夹。</div>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none;">
+    <h2><span class="num">3</span>下载结果</h2>
+    <div class="status">
+      <div class="stat-row" id="stats"></div>
+      <div class="results" id="results"></div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</main>
+<footer>林清轩种草智能体 · 素材下载工具</footer>
+
+<script>
+let busy = false;
+
+function getLinks() {
+  return document.getElementById('links').value
+    .split(/[\n,，]/).map(s => s.trim()).filter(Boolean);
+}
+
+async function run() {
+  if (busy) return;
+  const links = getLinks();
+  if (!links.length) { alert('请先粘贴 kdocs 链接'); return; }
+  busy = true;
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 下载中…';
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('stats').innerHTML = '';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('log').classList.remove('show');
+  document.getElementById('log').textContent = '';
+
+  try {
+    const resp = await fetch('/api/kdocs/desktop_fetch', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({links})
+    });
+    const data = await resp.json();
+    if (!data.success) throw new Error(data.msg || '请求失败');
+
+    const s = data;
+    document.getElementById('stats').innerHTML = `
+      <div class="stat ok"><b>${s.ok||0}</b><span>下载成功</span></div>
+      <div class="stat"><b>${s.skipped||0}</b><span>无素材跳过</span></div>
+      <div class="stat"><b>${s.error||0}</b><span>失败</span></div>
+      <div class="stat"><b>${s.total||0}</b><span>共处理</span></div>
+    `;
+    document.getElementById('path').textContent = s.desktop_dir || '~/Desktop/林清轩素材/';
+
+    (s.results || []).forEach(r => {
+      const cls = r.status === 'downloaded' ? 'ok' : (r.status === 'skipped' ? 'skip' : 'err');
+      const el = document.createElement('div');
+      el.className = 'item ' + cls;
+      el.innerHTML = `
+        <span class="icon"></span>
+        <div class="body">
+          <div class="t">${r.title || r.link}${r.count ? `（${r.count} 张）` : ''}</div>
+          <div class="d">${r.detail || ''}${r.folder ? ` · 📁 ${r.folder.split('/').pop()}` : ''}</div>
+          <a class="link" href="https://www.kdocs.cn/l/${r.link}" target="_blank">来源：kdocs.cn/l/${r.link}</a>
+        </div>`;
+      document.getElementById('results').appendChild(el);
+    });
+
+    if (data.log) {
+      const log = document.getElementById('log');
+      log.textContent = data.log;
+      log.classList.add('show');
+    }
+    await refreshList();
+  } catch (e) {
+    document.getElementById('results').innerHTML = `<div class="item err"><span class="icon"></span><div class="body"><div class="t">请求失败</div><div class="d">${e.message}</div></div></div>`;
+  } finally {
+    busy = false;
+    btn.disabled = false;
+    btn.textContent = '⬇ 下载到桌面';
+  }
+}
+
+async function refreshList() {
+  try {
+    const resp = await fetch('/api/kdocs/desktop_list');
+    const data = await resp.json();
+    if (data.success) {
+      const groups = data.data.groups || [];
+      document.getElementById('path').textContent = data.data.desktop_dir;
+      document.getElementById('hint').innerHTML =
+        `📂 桌面已下载 <b>${groups.length}</b> 组素材：` +
+        groups.map(g => `${g.name}(${g.count}张)`).join('、') +
+        '<br>⚠️ 每处理一个链接需要 Edge 无头渲染约 5~15 秒，链接越多耗时越长，请耐心等待完成提示。';
+    }
+  } catch (e) {}
+}
+
+async function organize() {
+  if (busy) return;
+  busy = true;
+  const btn = document.querySelector('button[onclick="organize()"]');
+  btn.disabled = true;
+  btn.textContent = '⏳ 整理中…';
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('stats').innerHTML = '';
+  document.getElementById('results').innerHTML = '';
+  try {
+    const resp = await fetch('/api/kdocs/organize', {method: 'POST'});
+    const data = await resp.json();
+    if (!data.success) throw new Error(data.msg || '整理失败');
+    document.getElementById('stats').innerHTML = `
+      <div class="stat ok"><b>${data.renamed.length}</b><span>重命名</span></div>
+      <div class="stat"><b>${data.merged.length}</b><span>合并</span></div>
+      <div class="stat"><b>${data.unchanged}</b><span>已达标</span></div>
+      <div class="stat"><b>${data.failed.length}</b><span>失败</span></div>
+    `;
+    const box = document.getElementById('results');
+    box.innerHTML = '';
+    data.renamed.forEach(r => {
+      const el = document.createElement('div');
+      el.className = 'item ok';
+      el.innerHTML = `<span class="icon"></span><div class="body"><div class="t">重命名：${r.from} → ${r.to}</div><div class="d">已按达人/分类名归档</div></div>`;
+      box.appendChild(el);
+    });
+    data.merged.forEach(r => {
+      const el = document.createElement('div');
+      el.className = 'item ok';
+      el.innerHTML = `<span class="icon"></span><div class="body"><div class="t">合并：${r.from} → ${r.to}</div><div class="d">合并 ${r.moved} 张（同名自动去重）</div></div>`;
+      box.appendChild(el);
+    });
+    data.failed.forEach(r => {
+      const el = document.createElement('div');
+      el.className = 'item err';
+      el.innerHTML = `<span class="icon"></span><div class="body"><div class="t">${r.from} 整理失败</div><div class="d">${r.reason || ''}</div></div>`;
+      box.appendChild(el);
+    });
+    if (!data.renamed.length && !data.merged.length && !data.failed.length) {
+      box.innerHTML = `<div class="item ok"><span class="icon"></span><div class="body"><div class="t">所有文件夹已是达人/分类名</div><div class="d">无需整理</div></div></div>`;
+    }
+    await refreshList();
+  } catch (e) {
+    document.getElementById('results').innerHTML = `<div class="item err"><span class="icon"></span><div class="body"><div class="t">整理失败</div><div class="d">${e.message}</div></div></div>`;
+  } finally {
+    busy = false;
+    btn.disabled = false;
+    btn.textContent = '🗂 按达人名整理';
+  }
+}
+
+function openFolder() {
+  fetch('/api/kdocs/open_desktop', {method:'POST'}).then(r=>r.json()).catch(()=>{});
+}
+
+/* ========== 抖音单条视频直接下载 ========== */
+async function downloadSingle() {
+  const urls = document.getElementById('dySingleUrls').value
+    .split(/[\n,，]/).map(s => s.trim()).filter(Boolean);
+  if (!urls.length) { alert('请先粘贴视频链接'); return; }
+  const btn = document.getElementById('singleBtn');
+  btn.disabled = true;
+  document.getElementById('singleResults').innerHTML = '';
+  document.getElementById('singlePbarWrap').classList.add('show');
+  document.getElementById('singleState').innerHTML = '';
+  setPbar(0);
+  const box = document.getElementById('singleResults');
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i];
+    setPbar(Math.round(i / urls.length * 100));
+    document.getElementById('singleState').innerHTML = `<b>⏳ [${i + 1}/${urls.length}]</b> 正在解析并下载：<span style="word-break:break-all">${esc(url)}</span>`;
+    try {
+      const r = await fetch('/api/douyin/single_download', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url})
+      });
+      const d = await r.json();
+      if (d.success) {
+        const x = d.data;
+        const el = document.createElement('div');
+        el.className = 'item ok';
+        el.innerHTML = `
+          <span class="icon"></span>
+          <div class="body">
+            <div class="t">${esc(x.desc || '视频')} · ${esc(x.nickname)}</div>
+            <div class="d">${x.status === 'exists' ? '已存在，跳过' : '下载完成'} · ${Math.round((x.size||0)/1024)}KB · 📁 ${esc((x.path||'').split('/').pop())}</div>
+          </div>`;
+        box.appendChild(el);
+      } else {
+        const el = document.createElement('div');
+        el.className = 'item err';
+        el.innerHTML = `<span class="icon"></span><div class="body"><div class="t">下载失败</div><div class="d">${esc(d.msg || '未知错误')}</div></div>`;
+        box.appendChild(el);
+      }
+    } catch (e) {
+      const el = document.createElement('div');
+      el.className = 'item err';
+      el.innerHTML = `<span class="icon"></span><div class="body"><div class="t">请求异常</div><div class="d">${esc(e.message)}</div></div>`;
+      box.appendChild(el);
+    }
+  }
+  setPbar(100);
+  document.getElementById('singleState').innerHTML = `<b>✅ 全部处理完成</b>（成功与失败见上方列表）`;
+  btn.disabled = false;
+  refreshList();
+}
+
+/* ========== 小红书笔记图片+文案下载 ========== */
+async function downloadXhs() {
+  const urls = document.getElementById('xhsUrls').value
+    .split(/[\n,，]/).map(s => s.trim()).filter(Boolean);
+  if (!urls.length) { alert('请先粘贴小红书笔记链接'); return; }
+  const btn = document.getElementById('xhsBtn');
+  btn.disabled = true;
+  document.getElementById('xhsResults').innerHTML = '';
+  document.getElementById('xhsPbarWrap').classList.add('show');
+  document.getElementById('xhsState').innerHTML = '';
+  setPbar(0);
+  const box = document.getElementById('xhsResults');
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i];
+    setPbar(Math.round(i / urls.length * 100));
+    document.getElementById('xhsState').innerHTML = `<b>⏳ [${i + 1}/${urls.length}]</b> 正在下载图片和文案：<span style="word-break:break-all">${esc(url)}</span>`;
+    try {
+      const r = await fetch('/api/xhs/download_note', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url})
+      });
+      const d = await r.json();
+      if (d.success) {
+        const x = d.data;
+        const el = document.createElement('div');
+        el.className = 'item ok';
+        const sizeKB = Math.round((x.total_size || 0) / 1024);
+        let detail = `${x.status === 'exists' ? '已存在，跳过' : '下载完成'} · ${x.image_count} 张图片 · ${sizeKB}KB · 📁 ${esc(x.author)}/`;
+        if (x.video) detail += ` · 🎬 视频${x.video.status === 'exists' ? '(已有)' : '已下载'}`;
+        el.innerHTML = `
+          <span class="icon"></span>
+          <div class="body">
+            <div class="t">${esc(x.title || '无标题')} · ${esc(x.author)}</div>
+            <div class="d">${detail}</div>
+          </div>`;
+        box.appendChild(el);
+      } else {
+        const el = document.createElement('div');
+        el.className = 'item err';
+        el.innerHTML = `<span class="icon"></span><div class="body"><div class="t">下载失败</div><div class="d">${esc(d.msg || '未知错误')}</div></div>`;
+        box.appendChild(el);
+      }
+    } catch (e) {
+      const el = document.createElement('div');
+      el.className = 'item err';
+      el.innerHTML = `<span class="icon"></span><div class="body"><div class="t">请求异常</div><div class="d">${esc(e.message)}</div></div>`;
+      box.appendChild(el);
+    }
+  }
+  setPbar(100);
+  document.getElementById('xhsState').innerHTML = `<b>✅ 全部处理完成</b>（成功与失败见上方列表）`;
+  btn.disabled = false;
+  refreshList();
+}
+
+/* ========== 抖音达人下载 ========== */
+let dyProfile = null;
+let dyTaskId = null;
+
+function fmtDate(ts) {
+  if (!ts) return '';
+  const d = new Date(ts * 1000);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function loadDyStatus() {
+  try {
+    const r = await fetch('/api/douyin/status');
+    const d = await r.json();
+    const tag = document.getElementById('cookieTag');
+    if (d.success && d.data.has_cookie) {
+      tag.textContent = '已配置 ✅（可直接下载）';
+      tag.className = 'tag tag-ok';
+    } else {
+      tag.textContent = '未配置 ❌';
+      tag.className = 'tag tag-no';
+    }
+  } catch (e) {}
+}
+
+function toggleCookieEdit() {
+  document.getElementById('cookieEdit').classList.toggle('show');
+}
+
+async function saveCookie() {
+  const cookie = document.getElementById('dyCookie').value.trim();
+  if (!cookie) { alert('请先粘贴 Cookie'); return; }
+  const r = await fetch('/api/douyin/save_cookie', {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({cookie})
+  });
+  const d = await r.json();
+  alert(d.msg || '保存失败');
+  if (d.success) { document.getElementById('cookieEdit').classList.remove('show'); loadDyStatus(); }
+}
+
+function getDyUrls() {
+  return document.getElementById('dyUrls').value
+    .split(/[\n,，]/).map(s => s.trim()).filter(Boolean);
+}
+
+async function loadProfile() {
+  const urls = getDyUrls();
+  if (!urls.length) { alert('请先粘贴达人主页链接'); return; }
+  const btn = document.getElementById('profileBtn');
+  btn.disabled = true; btn.textContent = '⏳ 读取中（约15~30秒）…';
+  document.getElementById('profileBox').innerHTML = '';
+  try {
+    const r = await fetch('/api/douyin/profile', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({url: urls[0]})
+    });
+    const d = await r.json();
+    if (!d.success) throw new Error(d.msg || '读取失败');
+    dyProfile = d.data;
+    const v = dyProfile.videos;
+    document.getElementById('profileBox').innerHTML = `
+      <div class="profile-head">
+        <div class="avatar">${esc(dyProfile.nickname.slice(0,1))}</div>
+        <div>
+          <div class="nm">${esc(dyProfile.nickname)}</div>
+          <div class="sub">共 ${v.length} 条可见视频 · 将保存到 林清轩素材/${esc(dyProfile.nickname)}/</div>
+        </div>
+      </div>
+      <div class="vgrid">${v.map(x => `
+        <div class="vcard">
+          ${x.cover ? `<img src="${esc(x.cover)}" loading="lazy" onerror="this.style.display='none'">` : '<img style="display:none">'}
+          <div class="vi">
+            <div class="vt">${esc(x.desc || '(无标题)')}</div>
+            <div class="vd">${fmtDate(x.create_time)}</div>
+          </div>
+        </div>`).join('')}
+      </div>`;
+    document.getElementById('dlBtn').disabled = false;
+    document.getElementById('dyHint').textContent = `✅ 达人「${dyProfile.nickname}」共 ${v.length} 条视频，点击「下载全部视频」开始（每条约需 10~15 秒）`;
+  } catch (e) {
+    document.getElementById('profileBox').innerHTML =
+      `<div class="item err"><span class="icon"></span><div class="body"><div class="t">读取失败</div><div class="d">${esc(e.message)}</div></div></div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = '🔍 读取视频列表';
+  }
+}
+
+async function startDownload() {
+  const urls = getDyUrls();
+  if (!urls.length) { alert('请先粘贴达人主页链接'); return; }
+  const btn = document.getElementById('dlBtn');
+  btn.disabled = true;
+  document.getElementById('dyResults').innerHTML = '';
+  document.getElementById('pbarWrap').classList.add('show');
+  setPbar(0);
+  try {
+    const r = await fetch('/api/douyin/download', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({urls})
+    });
+    const d = await r.json();
+    if (!d.success) throw new Error(d.msg);
+    dyTaskId = d.task_id;
+    pollTask();
+  } catch (e) {
+    document.getElementById('pstate').innerHTML = `<span style="color:#D64545">❌ ${esc(e.message)}</span>`;
+    btn.disabled = false;
+  }
+}
+
+function setPbar(pct) {
+  document.getElementById('pbar').style.width = pct + '%';
+  const sp = document.getElementById('singlePbar');
+  if (sp) sp.style.width = pct + '%';
+  const xp = document.getElementById('xhsPbar');
+  if (xp) xp.style.width = pct + '%';
+}
+
+async function pollTask() {
+  if (!dyTaskId) return;
+  const r = await fetch('/api/douyin/progress?task_id=' + dyTaskId);
+  const d = await r.json();
+  if (!d.success) { document.getElementById('pstate').innerHTML = '任务不存在'; return; }
+  const t = d.data;
+  const pct = t.total ? Math.round(t.done / t.total * 100) : 0;
+  setPbar(pct);
+  document.getElementById('pstate').innerHTML =
+    `<b>${t.state === 'done' ? '✅ 完成' : t.state === 'error' ? '❌ 失败' : '⏳ ' + (t.state==='fetching'?'解析直链':'下载中')}</b>
+     ${t.total ? `· ${t.done}/${t.total}` : ''} · ${esc(t.current || '')}`;
+  if (t.state === 'done' || t.state === 'error') {
+    const box = document.getElementById('dyResults');
+    box.innerHTML = '';
+    (t.results || []).forEach(x => {
+      const cls = x.status === 'downloaded' || x.status === 'exists' ? 'ok' : 'err';
+      const el = document.createElement('div');
+      el.className = 'item ' + cls;
+      el.innerHTML = `
+        <span class="icon"></span>
+        <div class="body">
+          <div class="t">${esc(x.desc || '视频')}</div>
+          <div class="d">${esc(x.detail || '')}${x.path ? ` · 📁 ${esc(x.path.split('/').pop())}` : ''}</div>
+        </div>`;
+      box.appendChild(el);
+    });
+    if (!(t.results || []).length) {
+      box.innerHTML = `<div class="item ${t.state==='done'?'ok':'err'}"><span class="icon"></span><div class="body"><div class="t">${t.state==='done'?'无可用视频':'任务失败'}</div><div class="d">${esc(t.error || t.current || '')}</div></div></div>`;
+    }
+    document.getElementById('dlBtn').disabled = false;
+    refreshList();
+    return;
+  }
+  setTimeout(pollTask, 2000);
+}
+
+refreshList();
+loadDyStatus();
+</script>
+</body>
+</html>
